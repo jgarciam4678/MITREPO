@@ -10,10 +10,10 @@ Fuentes: Flota de TorsaCore (sitios cloud) + servidores on‑premise (Antamina, 
 | Sistema | Unidades desplegadas | Horas acumuladas (20 h/día) |
 |---|---:|---:|
 | CMS (anticolisión) | 462 | 6.784.500 |
-| WBVM (Whole Body Vibration Monitor) | 185 | 9.173.400 |
+| WBVM (Whole Body Vibration Monitor) | 185 | 9.542.400 |
 | FAS (fatiga) | 86 | 782.000 |
 | ISA (intervención) | 38 | 118.560 |
-| **Total sistemas** | **771** | **16.858.460** |
+| **Total sistemas** | **771** | **17.227.460** |
 
 ### Por vehículo
 
@@ -22,7 +22,7 @@ Fuentes: Flota de TorsaCore (sitios cloud) + servidores on‑premise (Antamina, 
 | Vehículos instalados | 647 |
 | Vehículos en sitios cloud (Flota) | 426 |
 | Vehículos en servidores on‑premise | 221 |
-| Horas‑vehículo acumuladas (20 h/día) | 15.967.100 |
+| Horas‑vehículo acumuladas (20 h/día) | 16.336.100 |
 | Sitios productivos | 14 (11 cloud + 3 on‑premise) |
 | Vehículos en línea ahora (solo cloud) | 247 |
 
@@ -30,7 +30,7 @@ Fuentes: Flota de TorsaCore (sitios cloud) + servidores on‑premise (Antamina, 
 
 | Sitio | Servidor | Vehículos | Sistemas | Implementación | Días | Horas‑vehículo |
 |---|---|---:|---|---|---:|---:|
-| Antamina | On‑premise | 150 | WBVM 150 | 11/2018 (versión nueva desde 06/2024) | 2.894 | 8.682.000 |
+| Antamina | On‑premise | 150 | WBVM 150 | 07/2018 (versión nueva desde 06/2024) | 3.017 | 9.051.000 |
 | Antapaccay | Cloud | 195 | CMS 195 | 01/2023 | 1.372 | 5.350.800 |
 | EPSA Alkhabra | Cloud + ISA on‑premise | 102 | CMS 101 · FAS 85 · ISA 38 | 07/2025 (ISA 05/2026) | 460 | 938.400 |
 | Hudbay | On‑premise | 35 | WBVM 35 | 11/2024 | 702 | 491.400 |
@@ -43,7 +43,7 @@ Fuentes: Flota de TorsaCore (sitios cloud) + servidores on‑premise (Antamina, 
 | Altonorte | Cloud | 1 | CMS 1 | 04/2026 | 186 | 3.720 |
 | Marcobre | On‑premise | 36 | CMS 36 | sin fecha | – | pendiente |
 | KARO | Cloud | 1 | CMS 1 | en instalación | 0 | 0 |
-| **Total** | | **647** | **771** | | | **15.967.100** |
+| **Total** | | **647** | **771** | | | **16.336.100** |
 
 Marcobre: 29 camiones + 4 tractores de rueda + 3 palas.
 
@@ -61,14 +61,14 @@ Marcobre: 29 camiones + 4 tractores de rueda + 3 palas.
 | Drummond | 47.640 | – | – | – |
 | Altonorte | 3.720 | – | – | – |
 | KARO | 0 | – | – | – |
-| Antamina | – | – | – | 8.682.000 |
+| Antamina | – | – | – | 9.051.000 |
 | Hudbay | – | – | – | 491.400 |
 | Marcobre | pendiente | – | – | – |
-| **Total** | **6.784.500** | **782.000** | **118.560** | **9.173.400** |
+| **Total** | **6.784.500** | **782.000** | **118.560** | **9.542.400** |
 
 ## Supuestos y notas
 
-- Antamina cuenta desde 11/2018 (primera instalación); la versión nueva del WBVM opera desde 06/2024.
+- Antamina cuenta desde 07/2018 (primera instalación); la versión nueva del WBVM opera desde 06/2024.
 - Las horas se calculan como vehículos × días desde el día 1 del mes de implementación × 20 h/día. Con 24 h/día multiplicar por 1,2.
 - Los 38 camiones con ISA en EPSA forman parte de los 102 vehículos de Alkhabra; ISA se cuenta desde 05/2026.
 - El FAS de Alkhabra se asume instalado junto con el CMS (07/2025).
