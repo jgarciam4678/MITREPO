@@ -1,0 +1,11 @@
+@page{size:A4;margin:20mm 18mm}
+body{font-family:"DejaVu Sans",Arial,sans-serif;font-size:10pt;line-height:1.45;color:#1a1a1a}
+h1.title{font-size:20pt;margin:0 0 4mm;color:#b3202a;border-bottom:2px solid #b3202a;padding-bottom:3mm}
+h2{font-size:13pt;color:#b3202a;margin-top:8mm;break-after:avoid}
+h3{font-size:11pt;margin-top:5mm;break-after:avoid}
+table{border-collapse:collapse;width:100%;margin:3mm 0;font-size:8.5pt;break-inside:avoid}
+th,td{border:1px solid #bbb;padding:3px 5px;vertical-align:top;text-align:left}
+th{background:#f0f0f0}
+figure{margin:5mm 0;text-align:center;break-inside:avoid}
+figcaption{font-size:8.5pt;color:#444;margin-top:2mm}
+img{max-width:100%}
