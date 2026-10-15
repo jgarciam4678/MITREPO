@@ -7,24 +7,24 @@ lang: es
 
 ## 1. Resumen ejecutivo
 
-Este informe se emite durante el piloto de TORSA con Vale, que se ejecuta a través de SITECH Brasil y combina pruebas de laboratorio en el CPQD (laboratorio contratado por Vale) con pruebas de campo en equipos de Vale. Es una etapa de validación y homologación en curso: los resultados son preliminares y se ajustan a medida que avanzan las pruebas. El 14 de octubre de 2026 TORSA desplegó una nueva versión de software con los eventos adicionales solicitados.
+Este informe se emite durante el piloto de TORSA con Vale, ejecutado a través de SITECH Brasil: una etapa de validación y homologación en curso, con pruebas de laboratorio en el CPQD y de campo en equipos de Vale. Los resultados son preliminares. Vale planteó cuatro observaciones; la tabla muestra dónde difiere la lectura de TORSA y con qué evidencia.
 
-Las cuatro observaciones de Vale se originan en diferencias entre el entorno de laboratorio y una cabina en operación, y en una confusión entre calibración y entrenamiento del modelo; TORSA considera que no reflejan una limitación estructural de la solución. TORSA propone contrastar cada punto con evidencia de campo y ejecutar un plan de validación conjunto.
+Las discrepancias nacen de comparar el laboratorio con la operación real y de confundir calibración con entrenamiento del modelo. TORSA no las considera una limitación estructural de la solución y propone cerrarlas con pruebas conjuntas (sección 5).
 
-| # | Observación de Vale | Posición técnica de TORSA |
-| -- | ------------------ | ------------------------ |
-| 1 | La cabina de laboratorio reproduce las dimensiones reales de los equipos | Asiento, espacio interior y volante (móvil en laboratorio) difieren de una cabina real |
-| 2 | La calibración depende de conectividad | La calibración no requiere conectividad; solo el entrenamiento del modelo la requiere, durante unos segundos |
-| 3 | Sensibilidad excesiva y poca robustez entre cabinas | La comparación se hizo entre una cabina real y un laboratorio distinto; falta contrastar con resultados de campo |
-| 4 | 30–60 minutos de calibración por vehículo | En campo: 15 min en el primer equipo y ~5 min en los siguientes (≈17 h para 200 camiones, no 100–200 h) |
+| Tema | Vale plantea | TORSA responde |
+| ------------ | -------------------- | ------------------------------ |
+| Cabina de laboratorio | Reproduce las dimensiones reales de los equipos | Asiento, espacio interior y volante (móvil en laboratorio) difieren de una cabina real |
+| Conectividad | La calibración depende de red, un riesgo operativo | La calibración no requiere red; solo el entrenamiento del modelo, durante segundos. En operación el sistema es autónomo; la red se usó para monitorear las alertas en las pruebas |
+| Robustez entre cabinas | Demasiado sensible y poco robusto | Se comparó una cabina real con un laboratorio distinto; con sensibilidad alta crecen las alertas sin riesgo real |
+| Tiempo de calibración | 30–60 min por vehículo (100–200 h para 200 camiones) | En campo, 15 min el primero y ~5 min los siguientes (≈17 h para 200 camiones) |
 
 ## 2. Antecedentes y alcance
 
-Este informe responde a las observaciones que Vale comunicó a SITECH Brasil el 13 de octubre de 2026, en el marco de la homologación de la solución de monitoreo de fatiga y distracción de TORSA, y está pensado como anexo al informe del laboratorio CPQD contratado por Vale.
+Vale comunicó las observaciones a SITECH Brasil el 13 de octubre de 2026. Este informe las responde y está pensado como anexo al informe del CPQD, el laboratorio contratado por Vale.
 
-Cubre cuatro puntos: cabina de laboratorio, dependencia de conectividad, sensibilidad y robustez entre cabinas, y tiempo de calibración por vehículo. La evidencia proviene de las pruebas de campo realizadas en Vale, de imágenes del entorno de laboratorio y de estadísticas de alertas de una operación minera de referencia.
+La evidencia proviene de las pruebas de campo en Vale, de imágenes del laboratorio y de estadísticas de alertas de una operación minera de referencia (sección 4).
 
-Tras revisar el entorno de pruebas de Vale, TORSA desarrolló y desplegó el 14 de octubre de 2026, según lo comprometido, una versión de software con modelos de IA ajustados a escenarios no declarados inicialmente: fatiga, uso de móvil, consumo de tabaco, distracción, uso del cinturón de seguridad, obstrucción de cámara, presencia del operador, gafas inadecuadas y consumo de alimentos. Estas pruebas aplican un criterio de evaluación distinto del uso operativo habitual, por lo que sus resultados se registran por separado de los de campo.
+Tras revisar el entorno de pruebas, TORSA desplegó el 14 de octubre de 2026, según lo comprometido, una versión con modelos de IA ajustados a escenarios no declarados inicialmente: fatiga, uso de móvil, consumo de tabaco, distracción, uso del cinturón de seguridad, obstrucción de cámara, presencia del operador, gafas inadecuadas y consumo de alimentos. Esas pruebas usan un criterio de evaluación distinto del uso operativo habitual, por lo que sus resultados se registran por separado de los de campo.
 
 ## 3. Análisis técnico por observación
 
