@@ -7,6 +7,8 @@ lang: es
 
 ## 1. Resumen ejecutivo
 
+Este informe se emite durante el piloto de TORSA con Vale, que se ejecuta a través de SITECH Brasil y combina pruebas de laboratorio en el CPQD (laboratorio contratado por Vale) con pruebas de campo en equipos de Vale. Es una etapa de validación y homologación en curso: los resultados son preliminares y se ajustan a medida que avanzan las pruebas. El 14 de octubre de 2026 TORSA desplegó una nueva versión de software con los eventos adicionales solicitados.
+
 Las cuatro observaciones de Vale se originan en diferencias entre el entorno de laboratorio y una cabina en operación, y en una confusión entre calibración y entrenamiento del modelo; TORSA considera que no reflejan una limitación estructural de la solución. TORSA propone contrastar cada punto con evidencia de campo y ejecutar un plan de validación conjunto.
 
 | # | Observación de Vale | Posición técnica de TORSA |
