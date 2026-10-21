@@ -57,8 +57,12 @@ def test_definicion_de_listo(entorno):
     cliente, _, pid = entorno
     r = cliente.post("/api/flujo/tarjetas", json={"titulo": "Revisar cosas", "estado": "listo"})
     assert r.status_code == 409
-    reglas = r.json()["detail"]["reglas"]
-    assert any("responsable" in x for x in reglas) and any("proyecto" in x for x in reglas)
+    assert any("proyecto" in x for x in r.json()["detail"]["reglas"])
+    # Lista sin dueño es válida: la toma quien pueda; para empezarla sí hace falta dueño
+    libre = cliente.post("/api/flujo/tarjetas", json={"titulo": "Revisar cosas", "proyecto_id": pid, "estado": "listo"})
+    assert libre.status_code == 201
+    r = mover(cliente, libre.json()["id"], "en_curso")
+    assert r.status_code == 409 and any("dueño" in x for x in r.json()["detail"]["reglas"])
 
     r = cliente.post("/api/flujo/tarjetas", json={
         "titulo": "Reparar pantallas", "responsable": "ana / luis", "proyecto_id": pid, "estado": "listo"})
@@ -83,9 +87,9 @@ def test_definicion_de_hecho(entorno):
     tid = nueva(cliente, pid)["id"]
     mover(cliente, tid, "en_curso")
     r = mover(cliente, tid, "hecho")
-    assert r.status_code == 409 and len(r.json()["detail"]["reglas"]) == 2
+    assert r.status_code == 409 and len(r.json()["detail"]["reglas"]) == 1
+    # Sin validador: basta la evidencia
     cliente.patch(f"/api/flujo/tarjetas/{tid}", json={"documento_codigo": "ES-CMS-PROC-EJEMPLO"})
-    cliente.post(f"/api/flujo/tarjetas/{tid}/aceptar", json={"por": "pm"})
     assert mover(cliente, tid, "hecho").json()["estado"] == "hecho"
 
 
@@ -159,7 +163,7 @@ def test_tarjetas_desde_plan_de_trabajo(entorno):
         {"fase": "Aprobación SSOMA", "inicio": "A definir", "fin": "A definir", "responsable": "A asignar"},
     ]}
     r = cliente.post(f"/api/flujo/proyectos/{proyecto['id']}/plan", json=plan).json()
-    assert r["creadas"] == 2 and r["fases_sin_fecha_o_responsable"] == ["Aprobación SSOMA"]
+    assert r["creadas"] == 2 and r["fases_sin_fecha"] == ["Aprobación SSOMA"]
     tarjetas = {t["fase"]: t for t in cliente.get(f"/api/flujo/tarjetas?proyecto_id={proyecto['id']}").json()}
     assert tarjetas["Visita técnica"]["estado"] == "listo"
     assert tarjetas["Visita técnica"]["clase"] == "fecha_fija"
@@ -170,3 +174,16 @@ def test_tarjetas_desde_plan_de_trabajo(entorno):
     # el Charter no tiene fechas: cuenta como incompleto en la higiene de proyectos
     h = cliente.get("/api/flujo/metricas").json()["higiene_proyectos"]
     assert h == {"activos": 1, "completos": 0, "pct": 0.0, "incompletos": ["ES-SAF-DOC-PC-DEMO"]}
+
+
+def test_tomar_tarjeta_libre(entorno):
+    cliente, _, pid = entorno
+    libre = cliente.post("/api/flujo/tarjetas", json={
+        "titulo": "Diagnosticar antenas", "proyecto_id": pid, "estado": "listo"}).json()
+    r = cliente.post(f"/api/flujo/tarjetas/{libre['id']}/tomar", headers={"X-Usuario": "luis"})
+    assert r.status_code == 200 and r.json()["responsable"] == "luis" and r.json()["estado"] == "en_curso"
+    otra = nueva(cliente, pid, titulo="Otra", responsable="ana")
+    r = cliente.post(f"/api/flujo/tarjetas/{otra['id']}/tomar", headers={"X-Usuario": "luis"})
+    assert r.status_code == 409
+    resumen = cliente.get("/api/flujo/resumen-semanal").json()
+    assert resumen["libres"] == []

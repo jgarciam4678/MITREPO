@@ -41,6 +41,7 @@
 .flujo-titulo:hover { text-decoration: underline; }
 .flujo-meta { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: var(--fs-xs); color: var(--text-muted); }
 .flujo-falta { color: var(--status-warning); }
+.flujo-libre { color: var(--accent); font-style: normal; font-weight: 600; }
 .flujo-vencida { color: var(--status-critical-text); font-weight: 600; }
 .flujo-bloqueo { margin: 0; font-size: var(--fs-xs); color: var(--status-critical-text); }
 .flujo-acciones { display: flex; flex-wrap: wrap; gap: 4px; }

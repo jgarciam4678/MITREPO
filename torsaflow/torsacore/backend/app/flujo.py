@@ -223,13 +223,13 @@ class Aceptacion(BaseModel):
 # --- Reglas ----------------------------------------------------------------
 
 
-def faltas_listo(t: dict) -> list[str]:
-    """Definición de Listo."""
+def faltas_listo(t: dict, para_empezar: bool = False) -> list[str]:
+    """Definición de Listo. Una tarjeta Lista puede no tener dueño: la toma quien pueda."""
     faltas = []
-    if not t.get("responsable"):
-        faltas.append("Falta un responsable único.")
-    elif "/" in t["responsable"] or "," in t["responsable"]:
-        faltas.append("El responsable debe ser una sola persona.")
+    if para_empezar and not t.get("responsable"):
+        faltas.append("Falta el dueño: tómala tú o asígnala a alguien.")
+    elif t.get("responsable") and ("/" in t["responsable"] or "," in t["responsable"]):
+        faltas.append("El dueño debe ser una sola persona.")
     if not t.get("proyecto_id"):
         faltas.append("Falta el proyecto (usa «Interno» si no tiene Charter).")
     if t.get("clase") == "fecha_fija" and not t.get("fecha_compromiso"):
@@ -238,12 +238,10 @@ def faltas_listo(t: dict) -> list[str]:
 
 
 def faltas_hecho(t: dict) -> list[str]:
-    """Definición de Hecho."""
+    """Definición de Hecho: la evidencia, no un validador. El dueño declara Hecho."""
     faltas = []
     if not t.get("enlace_entregable") and not t.get("documento_codigo"):
-        faltas.append("Indica el código del entregable en la Biblioteca técnica o su enlace en Craft.")
-    if not t.get("aceptada_por"):
-        faltas.append("Registra la aceptación de quien lo pidió.")
+        faltas.append("Enlaza la evidencia: código en la Biblioteca técnica o enlace de Craft.")
     return faltas
 
 
@@ -291,6 +289,7 @@ def _con_semaforo(t: dict, momento: datetime, p85: int) -> dict:
         edad = dias_habiles(_dt(t["iniciada_en"]), momento)
         t["edad"] = edad
         t["semaforo"] = "verde" if edad <= p85 / 2 else "ambar" if edad <= p85 else "rojo"
+    t["dias_bloqueada"] = dias_habiles(_dt(t["bloqueo_desde"]), momento) if t.get("bloqueo_desde") else None
     ultimo = _dt(t["actualizada_en"])
     t["sin_movimiento"] = (
         t["estado"] not in ("hecho", "descartado")
@@ -340,9 +339,9 @@ def generar_desde_plan(
 ):
     """Convierte las fases del Plan de Trabajo aprobado en tarjetas.
 
-    Una tarjeta por fase. Si la fase tiene responsable y fecha de fin entra en
-    Listo como «fecha fija»; si tiene «A definir» o «A asignar» entra en Backlog
-    para completarla en la reposición semanal. Es idempotente: no duplica fases.
+    Una tarjeta por fase. Si la fase tiene fecha de fin entra en Listo como
+    «fecha fija», con o sin dueño; sin fecha («A definir») entra en Backlog.
+    Es idempotente: no duplica fases.
     """
     if con.execute("SELECT 1 FROM flujo_proyectos WHERE id=?", (proyecto_id,)).fetchone() is None:
         raise HTTPException(404, "Proyecto no encontrado")
@@ -361,7 +360,7 @@ def generar_desde_plan(
                 fin = date.fromisoformat(f.fin.strip()).isoformat()
             except ValueError:
                 fin = None
-        completa = bool(responsable and fin)
+        completa = bool(fin)  # sin dueño también es Lista: la toma quien pueda
         estado = "listo" if completa else "backlog"
         titulo = f"{f.fase}: {f.actividad}" if f.actividad else f.fase
         cur = con.execute(
@@ -374,7 +373,7 @@ def generar_desde_plan(
         creadas.append(cur.lastrowid)
         if not completa:
             incompletas.append(f.fase)
-    return {"creadas": len(creadas), "ids": creadas, "fases_sin_fecha_o_responsable": incompletas}
+    return {"creadas": len(creadas), "ids": creadas, "fases_sin_fecha": incompletas}
 
 
 # --- Tarjetas --------------------------------------------------------------
@@ -486,7 +485,7 @@ def mover_tarjeta(
     if destino == "descartado" and not m.motivo:
         faltas.append("Indica en una línea por qué se descarta.")
     if destino in ("listo", "en_curso"):
-        faltas += faltas_listo(t)
+        faltas += faltas_listo(t, para_empezar=destino == "en_curso")
     if destino == "hecho":
         faltas += faltas_hecho(t)
     if faltas:
@@ -525,6 +524,31 @@ def mover_tarjeta(
     if avisos:
         _evento(con, tarjeta_id, momento, usuario, "wip_forzado", detalle=m.justificacion_wip)
     return _tarjeta(con, tarjeta_id)
+
+
+class Toma(BaseModel):
+    justificacion_wip: Optional[str] = None
+
+
+@router.post("/tarjetas/{tarjeta_id}/tomar")
+def tomar_tarjeta(
+    tarjeta_id: int,
+    toma: Toma = Toma(),
+    con: sqlite3.Connection = Depends(conexion),
+    usuario: str = Depends(usuario_actual),
+    momento: datetime = Depends(ahora),
+):
+    """Autoasignación: quien tiene capacidad toma una tarjeta Lista y la empieza."""
+    t = _tarjeta(con, tarjeta_id)
+    if t["responsable"] and t["responsable"] != usuario:
+        raise HTTPException(409, {"reglas": [f"La tarjeta ya es de {t['responsable']}."]})
+    if t["estado"] != "listo":
+        raise HTTPException(409, {"reglas": ["Solo se toman tarjetas en Listo."]})
+    if not t["responsable"]:
+        con.execute("UPDATE flujo_tarjetas SET responsable=? WHERE id=?", (usuario, tarjeta_id))
+        _evento(con, tarjeta_id, momento, usuario, "tomada")
+    return mover_tarjeta(tarjeta_id, Movimiento(estado="en_curso", justificacion_wip=toma.justificacion_wip),
+                         con, usuario, momento)
 
 
 @router.post("/tarjetas/{tarjeta_id}/bloquear")
@@ -704,7 +728,9 @@ def metricas(
         por_portafolio[cartera] = por_portafolio.get(cartera, 0) + 1
 
     def limpia(t: dict) -> bool:
-        if not t["responsable"] or "/" in t["responsable"] or not t["proyecto_id"]:
+        if not t["proyecto_id"] or (t["responsable"] and "/" in t["responsable"]):
+            return False
+        if t["estado"] in ACTIVOS and not t["responsable"]:
             return False
         return not (t["clase"] == "fecha_fija" and not t["fecha_compromiso"])
 
@@ -770,7 +796,7 @@ def resumen_semanal(
     con: sqlite3.Connection = Depends(conexion),
     momento: datetime = Depends(ahora),
 ):
-    """Agenda de la reposición del lunes, generada desde el tablero."""
+    """Resumen asíncrono de la semana: sustituye a la reunión, no la necesita."""
     lunes = (momento - timedelta(days=momento.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
     hace_una_semana = lunes - timedelta(weeks=1)
     en_dos_semanas = (momento + timedelta(weeks=2)).date().isoformat()
@@ -790,6 +816,8 @@ def resumen_semanal(
         "vencen_en_2_semanas": [
             t for t in abiertas if t["fecha_compromiso"] and t["fecha_compromiso"] <= en_dos_semanas
         ],
+        "libres": [t for t in abiertas if t["estado"] == "listo" and not t["responsable"]],
+        "para_desbloquear": [t for t in abiertas if t["bloqueada"] and (t["dias_bloqueada"] or 0) >= 2],
         "bloqueadas": sorted(
             (t for t in abiertas if t["bloqueada"]), key=lambda t: t["bloqueo_desde"] or ""
         ),

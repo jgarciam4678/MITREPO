@@ -18,14 +18,14 @@ cambian cargos.
 
 ## Fase 1 — Piloto (semanas 3–4)
 
-- Un portafolio o subequipo (4–6 personas) usa el tablero y el diario de 15 min.
+- Un portafolio o subequipo (4–6 personas) trabaja solo con el tablero y los avisos automáticos.
 - La jefatura prepara la reunión del lunes con el *Resumen semanal* de TorsaCore.
 - Al final: retro de 30 min con el piloto, ajustar límites de WIP si hace falta.
 
 ## Fase 2 — Todo el departamento (semanas 5–7)
 
 - Todo el departamento en el tablero. Cualquier otra lista de seguimiento deja de mantenerse.
-- Arrancan la reposición semanal, la reunión de bloqueos externos y el facilitador rotativo.
+- Arranca la revisión del lunes (20 min, solo si el resumen marca algo).
 - Se invita a Comercial y Desarrollo a la reunión de bloqueos externos.
 - Ningún proyecto nuevo genera tarjetas sin Charter aprobado y Plan completo.
 
@@ -48,17 +48,17 @@ cambian cargos.
 | Fiabilidad de compromiso | ≥ 80 % |
 | Bloqueos con más de 5 días hábiles sin escalar | 0 |
 | Documentos de la Biblioteca con autor/responsable/aprobador con nombre | ≥ 95 % |
-| Tiempo de reuniones por persona y semana | ≤ 1 h 45 min |
+| Tiempo de reuniones por persona y semana | < 1 h |
 
 ## Antipatrones a vigilar
 
 | Señal | Qué hacer |
 |---|---|
-| Charter aprobado con fechas «—» o Plan con todo «A definir» | No genera tarjetas Listas: se queda en Backlog y aparece en la reposición hasta que se complete. |
-| El tablero se actualiza el viernes «para la reunión» | El diario se hace frente al tablero; si no está al día, se actualiza ahí mismo, delante de todos, una vez. Funciona. |
+| Charter aprobado con fechas «—» o Plan con todo «A definir» | No genera tarjetas Listas: se queda en Backlog hasta que la jefatura lo prepare. |
+| El tablero se actualiza el viernes «para la reunión» | Sin tablero al día no llegan los avisos ni se ven las tarjetas libres: el coste lo paga el propio equipo. Se habla una vez, en la mirada mensual. |
 | Todo es urgente | Solo 1 urgente a la vez. Si hay dos, la jefatura decide cuál cede. |
-| Tarjetas gigantes que viven semanas en curso | Si supera el p85, se parte en el diario. |
+| Tarjetas gigantes que viven semanas en curso | Si supera el p85, su dueño la parte. |
 | Se fuerza el WIP cada semana | Es un problema de prioridades, no del límite: va a la revisión de portafolio. |
 | «Bloqueado» como sitio cómodo donde aparcar | Escalado a 48 h y a 5 días; a los 15 días, decisión en portafolio. |
-| Documentos «Hechos» sin aprobador | La tarjeta no está Hecha: vuelve a En validación hasta que el control documental esté completo. |
+| Todo se queda esperando a que alguien lo apruebe | No hay aprobadores internos: el dueño cierra con evidencia; si algo falla, se reabre. |
 | Se piden informes aparte del tablero | Se responde con el enlace al Resumen semanal. Si falta un dato, se añade al módulo, no a otra hoja. |

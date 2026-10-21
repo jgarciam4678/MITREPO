@@ -11,7 +11,7 @@ métricas a mano.
 |---|---|---|---|---|
 | 1 | **Throughput** | Tarjetas que llegan a Hecho por semana | Estable o creciente | Capacidad real del equipo |
 | 2 | **Cycle time (p85)** | Días desde *En curso* hasta *Hecho*; percentil 85 | ≤ 10 días hábiles | «El 85 % de las tarjetas se termina en X días»: la base para comprometer fechas |
-| 3 | **WIP por persona** | Tarjetas en *En curso* + *En validación* | ≤ 5 (3 en curso + 2 en validación) | Multitarea, que es la causa principal de retrasos |
+| 3 | **WIP por persona** | Tarjetas en *En curso* (+ *En validación* si espera a un tercero) | ≤ 3 en curso | Multitarea, que es la causa principal de retrasos |
 | 4 | **Edad del trabajo** | Días que lleva una tarjeta activa sin terminar | Ninguna > p85 de cycle time | Detectar lo que se atasca **antes** de que llegue tarde |
 | 5 | **% bloqueado** | Tarjetas activas con ⚑ / tarjetas activas | < 15 % | Dependencias externas que nos frenan |
 | 6 | **Fiabilidad de compromiso** | Tarjetas con fecha terminadas a tiempo / tarjetas con fecha que vencieron en el periodo | ≥ 80 % | Credibilidad del departamento ante clientes y otras áreas |
@@ -44,14 +44,13 @@ Con el histórico de cycle time se responde a «¿para cuándo?» sin estimar:
 - Un conjunto de N tarjetas: simulación Monte Carlo con el throughput semanal de
   las últimas 8–12 semanas (TorsaCore lo calcula; ver [03](03-torsacore-modulo.md)).
 
-## Cómo se leen en las reuniones
+## Dónde se miran
 
-| Reunión | Índices que se miran |
+| Momento | Índices que se miran |
 |---|---|
-| Diario | Edad del trabajo (tarjetas en ámbar/rojo) y ⚑ bloqueadas |
-| Reposición semanal | WIP por persona, compromisos que vencen en 2 semanas, throughput de la semana |
-| Revisión de portafolio | Los doce, tendencia de 3 meses, distribución por portafolio y proyecto |
-| Retrospectiva | El índice que peor haya evolucionado → una mejora |
+| Avisos automáticos (sin reunión) | Edad del trabajo (tarjetas en rojo) y ⚑ bloqueadas 2+ días |
+| Revisión del lunes | Para desbloquear, compromisos que vencen en 2 semanas, tarjetas libres, WIP por persona |
+| Mirada mensual | Los doce, tendencia de 3 meses, distribución por portafolio y proyecto; el que peor evolucione → una mejora |
 
 ## Semáforo de edad
 
@@ -59,6 +58,6 @@ Con el histórico de cycle time se responde a «¿para cuándo?» sin estimar:
 |---|---|
 | Verde | ≤ 50 % del p85 de cycle time |
 | Ámbar | 50–100 % del p85 |
-| Rojo | > p85: se habla en el diario de hoy |
+| Rojo | > p85: aviso a su dueño para partirla, desbloquearla o devolverla al Backlog |
 
 Mientras no haya histórico (primeras 6 semanas) se usa un p85 provisional de 10 días hábiles.

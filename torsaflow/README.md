@@ -36,15 +36,16 @@ no el viernes.
 ## En una página
 
 ```
- NIVEL 3 · PORTAFOLIO     mensual 60'   ¿En qué proyectos/clientes invertimos? ¿Qué paramos?
- NIVEL 2 · COORDINACIÓN   semanal 30'   ¿Qué entra esta semana? ¿Qué bloqueos externos escalamos?
- NIVEL 1 · EQUIPO         diario 15'    ¿Qué terminamos hoy? ¿Qué está atascado?
+ Jefatura:  busca y prepara problemas ──▶ tarjetas Listas (libres)
+ Equipo:    cada uno toma la siguiente ──▶ la resuelve y decide cómo ──▶ Hecho con evidencia
+ TorsaCore: bloqueos de 2+ días ──▶ aviso a jefatura, que desbloquea en el mundo real
 
- Backlog → Listo → En curso → En validación → Hecho
-                    (WIP ≤ 3 por persona)      (con entregable enlazado)
-            ⚑ Bloqueado = marca sobre la tarjeta, con motivo, dueño y fecha
+ Backlog → Listo (libre) → En curso → Hecho
+                           (≤ 3 por persona)   (evidencia enlazada, sin validador)
+            ⚑ Bloqueado = marca sobre la tarjeta, con motivo y de quién depende
 ```
 
-- Menos de **1 h 45 min de reuniones por persona y semana** en total.
+- Sin reunión diaria, sin RACI, sin validadores por actividad.
+- Una revisión de 20 minutos el lunes, solo si el resumen automático marca algo.
 - Sin informes semanales: el resumen semanal lo genera TorsaCore desde el tablero.
 - Sin «% de avance» subjetivo: el avance se mide por tarjetas terminadas y tiempos reales.

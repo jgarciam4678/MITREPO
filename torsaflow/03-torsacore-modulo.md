@@ -52,11 +52,12 @@ flujo_eventos    (id, tarjeta_id, momento, usuario, tipo, desde, hacia, detalle)
 
 | Momento | Regla | Tipo |
 |---|---|---|
-| Pasar a Listo o En curso | Responsable único (sin «/» ni «,»), proyecto, fecha si es *fecha fija* | Obligatoria |
+| Pasar a Listo | Proyecto y, si es *fecha fija*, fecha. El dueño es opcional: una tarjeta Lista puede estar libre | Obligatoria |
+| Pasar a En curso | Un dueño único (sin «/» ni «,»). `POST /tomar` lo pone automáticamente | Obligatoria |
 | Pasar a En curso | Máx. 3 por persona | Aviso; se puede forzar con justificación |
 | Pasar a En validación | Máx. 2 por persona | Aviso; se puede forzar con justificación |
 | Pasar a En curso una urgente | Máx. 1 urgente activa en el departamento | Aviso; se puede forzar |
-| Pasar a Hecho | Código del entregable en la Biblioteca (o enlace de Craft) + aceptación registrada | Obligatoria |
+| Pasar a Hecho | Evidencia: código en la Biblioteca o enlace de Craft. Sin validador | Obligatoria |
 | Descartar | Motivo en una línea | Obligatoria |
 | Bloquear | Motivo + de quién depende | Obligatoria |
 | Generar desde el Plan | «A definir», «A asignar», «—» y «Pendiente de confirmar» cuentan como vacíos | Fase a Backlog |
@@ -76,11 +77,12 @@ Las reglas rotas devuelven `409` con `{"reglas": [...]}` en lenguaje claro, y
 | `PATCH` | `/tarjetas/{id}` | Editar campos, incluido `documento_codigo` |
 | `POST` | `/tarjetas/{id}/mover` | `{estado, motivo?, justificacion_wip?}` |
 | `POST` | `/tarjetas/{id}/bloquear` · `/desbloquear` | Marca ⚑ |
-| `POST` | `/tarjetas/{id}/aceptar` | `{por}`: aceptación del solicitante |
+| `POST` | `/tarjetas/{id}/tomar` | Autoasignación: quien llama se convierte en dueño y la tarjeta pasa a En curso (respeta el límite de WIP) |
+| `POST` | `/tarjetas/{id}/aceptar` | Opcional: registrar la conformidad de un tercero (cliente, sitio) cuando el contrato lo pide |
 | `GET` | `/tarjetas/{id}/historial` | Eventos de la tarjeta |
 | `GET` | `/metricas?semanas=12` | Índices de flujo + `higiene_proyectos` (Charters completos) |
 | `GET` | `/prevision?n=20` | Monte Carlo: semanas p50/p85/p95 para terminar N tarjetas |
-| `GET` | `/resumen-semanal` | Lo que se mira el lunes: terminadas, vencen en 2 semanas, bloqueadas, envejecidas, sin movimiento, sobre WIP |
+| `GET` | `/resumen-semanal` | Resumen asíncrono: para desbloquear (2+ días), libres, vencen en 2 semanas, terminadas, envejecidas, sin movimiento, sobre WIP |
 
 ## Pantalla
 
@@ -92,7 +94,7 @@ Setup o CMS Studio.
 ```
 ┌ Flujo [Equipo ▾] [Portafolio ▾] [Proyecto ▾] [Nueva tarjeta: verbo + entregable] [Añadir]   Tablero | Resumen ⟳ ┐
 ├ Terminadas │ Cycle time p85 │ En rojo │ % bloqueado │ Fiabilidad │ Higiene tablero │ Charters completos ┤
-├ Backlog │ Listo │ En curso (3/persona) │ En validación (2/persona) │ Hecho (7 días) ┤
+├ Backlog │ Listo (libres con botón «Tomar») │ En curso (3/persona) │ En validación (terceros) │ Hecho (7 días) ┤
 │  tarjeta: clase · portafolio · edad · título · responsable · proyecto · fase · 📅 · 📄 código · ⚑ motivo │
 ```
 

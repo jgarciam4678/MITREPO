@@ -53,7 +53,7 @@ function hace7dias() {
   return new Date(Date.now() - 7 * 864e5).toISOString();
 }
 
-function Tarjeta({ t, proyectos, onMover, onBloqueo, onEditar }) {
+function Tarjeta({ t, proyectos, onMover, onTomar, onBloqueo, onEditar }) {
   const proyecto = proyectos.find((p) => p.id === t.proyecto_id);
   const vencida = t.fecha_compromiso && t.estado !== "hecho" && t.fecha_compromiso < new Date().toISOString().slice(0, 10);
   return (
@@ -65,7 +65,7 @@ function Tarjeta({ t, proyectos, onMover, onBloqueo, onEditar }) {
       </header>
       <button type="button" className="flujo-titulo" onClick={() => onEditar(t)}>{t.titulo}</button>
       <div className="flujo-meta">
-        <span>{t.responsable || <em className="flujo-falta">sin responsable</em>}</span>
+        <span>{t.responsable || <em className="flujo-libre">libre</em>}</span>
         <span>{proyecto ? proyecto.nombre : <em className="flujo-falta">sin proyecto</em>}</span>
         {t.fase && <span>Fase: {t.fase}</span>}
         {t.fecha_compromiso && <span className={vencida ? "flujo-vencida" : ""}>📅 {t.fecha_compromiso}</span>}
@@ -75,7 +75,10 @@ function Tarjeta({ t, proyectos, onMover, onBloqueo, onEditar }) {
         <p className="flujo-bloqueo">⚑ {t.bloqueo_depende_de}: {t.bloqueo_motivo}</p>
       ) : null}
       <footer className="flujo-acciones">
-        {SIGUIENTE[t.estado].map((e) => (
+        {t.estado === "listo" && !t.responsable && (
+          <button type="button" className="btn-primary cmss-sm" onClick={() => onTomar(t)}>Tomar</button>
+        )}
+        {SIGUIENTE[t.estado].filter((e) => !(e === "en_curso" && !t.responsable)).map((e) => (
           <button key={e} type="button" className="btn-secondary cmss-sm" onClick={() => onMover(t, e)}>
             → {NOMBRE_ESTADO[e]}
           </button>
@@ -117,9 +120,10 @@ function Metricas({ m }) {
 function Resumen({ r }) {
   if (!r) return <p className="module-empty">Cargando resumen…</p>;
   const bloques = [
-    ["Terminadas la semana pasada", r.terminadas_semana_pasada],
+    ["Para desbloquear (2+ días bloqueadas)", r.para_desbloquear],
+    ["Libres: listas para tomar", r.libres],
     ["Vencen en 2 semanas", r.vencen_en_2_semanas],
-    ["Bloqueadas", r.bloqueadas],
+    ["Terminadas la semana pasada", r.terminadas_semana_pasada],
     ["En rojo por edad", r.envejecidas],
     ["Sin movimiento 10 días", r.sin_movimiento],
     ["En Listo hace 3 semanas (¿Backlog o descartar?)", r.listas_sin_empezar_3_semanas],
@@ -137,7 +141,7 @@ function Resumen({ r }) {
           <ul>
             {lista.map((t) => (
               <li key={t.id}>
-                <strong>{t.titulo}</strong> — {t.responsable || "sin responsable"}
+                <strong>{t.titulo}</strong> — {t.responsable || "libre"}
                 {t.bloqueada ? ` · ⚑ ${t.bloqueo_depende_de}` : ""}
                 {t.fecha_compromiso ? ` · 📅 ${t.fecha_compromiso}` : ""}
               </li>
@@ -215,25 +219,24 @@ export default function Flujo() {
 
   const mover = async (t, estado) => {
     const tieneEntregable = t.documento_codigo || t.enlace_entregable;
-    if (estado === "hecho" && (!tieneEntregable || !t.aceptada_por)) {
-      const entregable = tieneEntregable || window.prompt("Código del entregable en la Biblioteca técnica (o enlace de Craft):");
-      if (!entregable) return;
-      const por = t.aceptada_por || window.prompt("¿Quién lo ha aceptado?");
-      if (!por) return;
-      const campo = /^https?:\/\//.test(entregable) ? "enlace_entregable" : "documento_codigo";
-      await conReglas(async () => {
-        if (!tieneEntregable) await api(`/tarjetas/${t.id}`, { method: "PATCH", body: { [campo]: entregable } });
-        await api(`/tarjetas/${t.id}/aceptar`, { method: "POST", body: { por } });
-      });
+    // Sin validador: el dueño declara Hecho enlazando la evidencia.
+    if (estado === "hecho" && !tieneEntregable) {
+      const evidencia = window.prompt("Evidencia: código en la Biblioteca técnica o enlace de Craft:");
+      if (!evidencia) return;
+      const campo = /^https?:\/\//.test(evidencia) ? "enlace_entregable" : "documento_codigo";
+      await conReglas(() => api(`/tarjetas/${t.id}`, { method: "PATCH", body: { [campo]: evidencia } }));
     }
-    const avisos = await conReglas(() => api(`/tarjetas/${t.id}/mover`, { method: "POST", body: { estado } }));
+    await conWip((extra) => api(`/tarjetas/${t.id}/mover`, { method: "POST", body: { estado, ...extra } }));
+  };
+
+  // Autoasignación: quien tiene capacidad toma una tarjeta libre.
+  const tomar = (t) => conWip((extra) => api(`/tarjetas/${t.id}/tomar`, { method: "POST", body: extra }));
+
+  const conWip = async (llamada) => {
+    const avisos = await conReglas(() => llamada({}));
     if (avisos) {
       const porque = window.prompt(`${avisos.join("\n")}\n\nSi aun así hay que empezarla, indica por qué:`);
-      if (porque) {
-        await conReglas(() =>
-          api(`/tarjetas/${t.id}/mover`, { method: "POST", body: { estado, justificacion_wip: porque } }),
-        );
-      }
+      if (porque) await conReglas(() => llamada({ justificacion_wip: porque }));
     }
   };
 
@@ -320,7 +323,7 @@ export default function Flujo() {
                 </h3>
                 {lista.length === 0 && <p className="module-empty">—</p>}
                 {lista.map((t) => (
-                  <Tarjeta key={t.id} t={t} proyectos={proyectos} onMover={mover} onBloqueo={bloqueo} onEditar={editar} />
+                  <Tarjeta key={t.id} t={t} proyectos={proyectos} onMover={mover} onTomar={tomar} onBloqueo={bloqueo} onEditar={editar} />
                 ))}
               </section>
             );

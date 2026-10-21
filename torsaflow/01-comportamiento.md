@@ -1,146 +1,126 @@
 # 01 — Marco de comportamiento
 
-Las herramientas no ordenan a un equipo; los hábitos sí. Este documento define
-los hábitos mínimos. Todo lo que no está aquí queda a criterio de cada persona.
+Un equipo pequeño de gente que resuelve problemas no necesita validadores ni
+reuniones diarias: necesita saber qué hay que resolver, poder tomarlo y que
+los bloqueos lleguen rápido a quien puede quitarlos. Este documento define los
+hábitos mínimos para eso. Todo lo demás queda a criterio de cada persona.
 
 ## 1. Seis principios
 
 1. **Todo el trabajo visible.** Si te ocupa más de 2 horas, va al tablero. Las
    peticiones por chat, correo o pasillo se convierten en tarjeta antes de empezar.
-2. **Dejar de empezar, empezar a terminar.** Máximo **3 tarjetas En curso por
-   persona**. Para empezar algo nuevo, primero terminas, entregas o bloqueas otra cosa.
-3. **Un responsable, un entregable, una fecha.** Cada tarjeta tiene un único
-   responsable (no «Ana / Luis»), empieza por un verbo y nombra lo que se
-   entrega. Si no tiene fecha, no es un compromiso: es una intención.
-4. **Un bloqueo se ve en 24 h y se escala en 48 h.** Esperar a otra área, al
-   cliente o a un proveedor es normal; esperar en silencio no.
-5. **Hecho es entregado y aceptado.** No «casi terminado» ni «al 90 %». Hecho
-   significa que quien lo pidió lo tiene y el enlace al entregable está en la tarjeta.
-6. **Decidir con datos del flujo.** Las conversaciones sobre prioridades y
-   capacidad se apoyan en las métricas de [02](02-metricas.md), no en impresiones.
+2. **Cada tarjeta tiene un dueño, y el dueño decide.** El dueño resuelve la
+   tarjeta de principio a fin, decide cómo y pide ayuda a quien la necesite. No
+   hay aprobadores intermedios ni matrices de responsabilidad.
+3. **Se toma, no se asigna.** Las tarjetas Listas pueden estar libres; quien
+   tiene capacidad toma la siguiente. La jefatura solo asigna cuando la tarjeta
+   requiere a una persona concreta.
+4. **Dejar de empezar, empezar a terminar.** Máximo **3 tarjetas En curso por
+   persona**. Para tomar otra, primero terminas o marcas un bloqueo.
+5. **Hecho se demuestra con evidencia, no con una firma.** El dueño declara
+   Hecho enlazando la evidencia (documento en la Biblioteca técnica, enlace de
+   Craft). Solo el cliente firma, y solo en los hitos de contrato.
+6. **Los bloqueos suben solos.** Esperar a otra área, al cliente o a un
+   proveedor es normal; esperar en silencio no. El dueño marca ⚑ y TorsaCore
+   se lo hace llegar a la jefatura sin necesidad de reunión.
 
-## 2. Tres niveles de trabajo (Flight Levels)
+## 2. Roles
 
-| Nivel | Qué se ve | Quién | Cadencia |
-|---|---|---|---|
-| **3 · Portafolio** | Portafolios (CMS, SAF, AO, NEPTUNE, INFRA…) y sus Project Charters en TorsaCore: estado, prioridad relativa, qué se para | Jefatura + PMs | Mensual |
-| **2 · Coordinación** | Fases del Plan de Trabajo de cada proyecto y dependencias con Comercial, Desarrollo, proveedores y cliente | Jefatura + PMs + facilitador | Semanal |
-| **1 · Equipo** | Tarjetas de cada persona en el módulo Flujo, del Backlog a Hecho | Todo el equipo | Diario |
+Solo dos, sin cargos nuevos:
 
-Cada nivel ya tiene su soporte en TorsaCore y Craft:
-
-```
-Project Charter (TorsaCore) ──aprobado──▶ Plan de Trabajo ──fases──▶ Tarjetas (Flujo) ──▶ Documento en la Biblioteca técnica (Craft)
-       nivel 3                               nivel 2                 nivel 1               evidencia de Hecho
-```
-
-Los problemas suben de nivel cuando el nivel inferior no puede resolverlos; las
-prioridades bajan del nivel superior. Nadie prioriza su propio trabajo contra el
-de otro proyecto: eso se decide en nivel 3.
-
-## 3. Roles (sin crear cargos nuevos)
-
-| Rol | Lo ejerce | Responsabilidad |
+| Rol | Qué hace | Qué no hace |
 |---|---|---|
-| **Responsable de tarjeta** | Cualquier persona | Mueve su tarjeta en el momento, declara bloqueos, enlaza el entregable |
-| **Dueño de proyecto** | Responsable Torsa del Charter (Project Manager del Plan de Trabajo) | Mantiene Charter y Plan al día, ordena el backlog de su proyecto, negocia fechas con el cliente |
-| **Facilitador de flujo** | Rotativo cada mes | Conduce el diario y la reunión semanal, vigila tarjetas envejecidas y límites de WIP |
-| **Jefatura** | Jefe de departamento | Decide prioridades entre proyectos, desbloquea lo que el equipo no puede, protege el WIP |
+| **Dueño de la tarjeta** (cualquier persona) | Toma la tarjeta, la resuelve, decide cómo, marca los bloqueos en el momento y la cierra con evidencia | Pedir permiso para resolver dentro de su tarjeta |
+| **Jefatura** | Busca y prepara los problemas en el mundo real y los convierte en tarjetas Listas; quita bloqueos que el equipo no puede quitar; decide prioridades entre proyectos; trata con el cliente | Validar cada tarjeta, pedir informes, convocar reuniones de seguimiento |
 
-## 4. Estados y políticas del tablero
+## 3. Tres niveles de trabajo (Flight Levels)
 
-| Estado | Entra cuando… (política explícita) |
+| Nivel | Qué se ve | Dónde |
+|---|---|---|
+| **3 · Portafolio** | Portafolios (CMS, SAF, AO, NEPTUNE, INFRA…) y sus Project Charters: qué proyectos van primero, qué se para | TorsaCore · Charter |
+| **2 · Proyecto** | Fases del Plan de Trabajo y dependencias con Comercial, Desarrollo, proveedores y cliente | TorsaCore · Plan de Trabajo |
+| **1 · Tarjetas** | Lo que cada persona está resolviendo, del Backlog a Hecho | TorsaCore · Flujo |
+
+```
+Project Charter ──▶ Plan de Trabajo ──fases──▶ Tarjetas (Flujo) ──▶ Evidencia en la Biblioteca técnica (Craft)
+```
+
+## 4. Estados del tablero
+
+| Estado | Significa |
 |---|---|
-| **Backlog** | Alguien lo propone. Sin requisitos. Se poda cada mes. |
-| **Listo** | Cumple la *Definición de Listo* (abajo). Es lo que se puede empezar ya. |
-| **En curso** | El responsable empieza a trabajar. Límite: 3 por persona. |
-| **En validación** | Entregado a quien lo pidió y pendiente de su aceptación. Límite: 2 por persona. |
-| **Hecho** | Cumple la *Definición de Hecho*. |
-| **Descartado** | Se decide no hacerlo. Con motivo en una línea. Descartar también es gestionar. |
+| **Backlog** | Identificado, todavía sin preparar. |
+| **Listo** | Preparado para empezar (cumple la Definición de Listo). Puede estar **libre**, sin dueño. |
+| **En curso** | Alguien lo ha tomado. Límite: 3 por persona. |
+| **En validación** | Solo cuando un tercero tiene que probarlo (cliente, sitio). Lo interno pasa directo a Hecho. |
+| **Hecho** | Con evidencia enlazada. |
+| **Descartado** | Se decide no hacerlo, con motivo en una línea. Descartar también es gestionar. |
 
-**Bloqueado no es una columna**: es una marca ⚑ sobre la tarjeta, que se queda en
-su estado. Obliga a indicar *motivo*, *de quién depende* y *desde cuándo*.
-
-> «En pausa» desaparece. Una tarjeta está bloqueada (con motivo y dueño), vuelve
-> al Backlog o se descarta.
+**Bloqueado no es una columna**: es una marca ⚑ sobre la tarjeta, con *motivo* y
+*de quién depende*. «En pausa» no existe: una tarjeta está bloqueada, vuelve al
+Backlog o se descarta.
 
 ### Clases de servicio
 
 | Clase | Ejemplo | Regla |
 |---|---|---|
 | **Urgente** | Incidencia de cliente cubierta por el SLA, fallo en producción | Salta la cola. Máximo 1 en todo el departamento a la vez. |
-| **Fecha fija** | Entregable comprometido con cliente, auditoría | Se empieza con margen; se revisa cada semana. |
-| **Estándar** | La mayoría del trabajo | Orden del backlog. |
-| **Mejora interna** | Guías de taller, herramientas, documentación propia | Cupo reservado del ~20 % de la capacidad para que no se coma ni se olvide. |
+| **Fecha fija** | Entregable comprometido con cliente | Se empieza con margen. |
+| **Estándar** | La mayoría del trabajo | Se toma en orden. |
+| **Mejora interna** | Guías, herramientas, documentación propia | ~20 % de la capacidad para que no se olvide. |
 
-### Definición de Listo de un proyecto
+### Definición de Listo — 3 preguntas
 
-Un proyecto no empieza a generar tarjetas hasta que en TorsaCore:
+1. ¿El título empieza por un verbo y nombra el resultado? («Corregir la ordenación de alertas por distancia», no «Alertas»).
+2. ¿Tiene proyecto (o «Interno») y, si hay compromiso, fecha?
+3. ¿Cabe en **2 semanas** o menos? Si no, se parte.
 
-1. El **Project Charter** está *Aprobado*, con responsable Torsa, fecha de inicio,
-   fecha de fin y criterios de éxito medibles.
-2. El **Plan de Trabajo** generado desde el Charter tiene cada fase con fechas y
-   cada rol asignado. Un «A definir» o «A asignar» es trabajo pendiente del dueño
-   de proyecto, no un plan.
+Preparar tarjetas Listas es el trabajo principal de la jefatura.
 
-### Definición de Listo de una tarjeta (DoR) — 4 preguntas
+### Definición de Hecho
 
-1. ¿El título empieza por un verbo y nombra el entregable? («Elaborar protocolo de pruebas SAF», no «Protocolo»).
-2. ¿Tiene un único responsable y un proyecto del catálogo (o «Interno»)?
-3. ¿Cabe en **2 semanas** o menos? Si no, se parte en tarjetas más pequeñas.
-4. Si es un compromiso con alguien: ¿tiene fecha acordada con esa persona?
+1. La evidencia está enlazada en la tarjeta: código en la Biblioteca técnica o enlace de Craft.
+2. Si es documentación técnica, se publica con su control documental completo.
 
-### Definición de Hecho (DoD) — 3 comprobaciones
+Nadie más tiene que aprobarla. Si algo resulta no estar bien, la tarjeta se
+reabre: es más barato que validar todo por adelantado.
 
-1. La tarjeta indica el código del entregable en la Biblioteca técnica (o su
-   enlace en Craft). No se adjuntan copias.
-2. Quien lo pidió lo ha aceptado (basta un «OK» registrado en la tarjeta).
-3. Si es documentación técnica, está publicada en la Biblioteca técnica con el
-   control documental completo: código, versión, estado, clasificación,
-   portafolio y nivel, y autor, responsable y aprobador con nombre (nunca
-   «Pendiente de confirmar»).
+## 5. Ritmo: asíncrono por defecto
 
-La Definición de Hecho de un **proyecto** es la que ya marca el Plan de Trabajo:
-informe final y certificado de aceptación publicados en la Biblioteca técnica.
+No hay reunión diaria. El tablero y los avisos automáticos de TorsaCore hacen
+ese trabajo.
 
-## 5. Cadencias (≤ 1 h 45 min por persona y semana)
+| Qué | Cuándo | Cómo |
+|---|---|---|
+| **Actualizar el tablero** | Cuando algo cambia | Cada dueño mueve su tarjeta en el momento. Dos clics, no un informe. |
+| **Avisos automáticos** | Continuo | Bloqueada 2 días hábiles → aviso a jefatura. Tarjeta en rojo por edad → aviso a su dueño. Hay tarjetas libres → visibles para todos. |
+| **Revisión del lunes** | Semanal, 20 min como máximo | Jefatura (y quien quiera) sobre el *Resumen semanal*: lo que hay que desbloquear, lo que vence en 2 semanas y qué preparar como Listo. **Si el resumen no marca nada, no hay reunión.** |
+| **Mirada mensual** | Una vez al mes, 45 min | Las métricas del mes y una sola mejora al proceso. |
 
-| Reunión | Cuándo | Duración | Quién | Formato |
-|---|---|---|---|---|
-| **Diario de flujo** | Cada día, misma hora | 15 min | Equipo | De pie frente al tablero. Se recorre **de derecha a izquierda** (lo más cerca de Hecho primero). Solo se habla de bloqueos, tarjetas envejecidas y ayuda necesaria. No es una ronda de «qué hice ayer». |
-| **Reposición semanal** | Lunes | 30 min | Jefatura, PMs, facilitador | ¿Qué terminamos? ¿Qué entra a Listo? ¿Qué compromisos de fecha vencen en 2 semanas? ¿Qué Charters o Planes tienen huecos? Se hace sobre el Resumen semanal de TorsaCore. |
-| **Bloqueos externos** | Semanal, tras la reposición | 20 min | Jefatura + enlaces de Comercial/Desarrollo | Solo tarjetas con ⚑ que dependen de otra área. Sale una fecha o una decisión por tarjeta. |
-| **Revisión de portafolio** | Primer lunes del mes | 60 min | Jefatura + PMs | Métricas del mes, prioridad de proyectos, qué paramos para poder empezar otra cosa. |
-| **Retrospectiva** | Último viernes del mes | 45 min | Todo el equipo | Una sola mejora concreta al proceso, con responsable. Se revisa la del mes anterior. |
+Total: menos de una hora por persona y semana.
 
-## 6. Gestión de bloqueos y escalado
+## 6. Bloqueos
 
 | Tiempo bloqueado | Qué pasa |
 |---|---|
-| **0 h** | El responsable marca ⚑ con motivo, dependencia y fecha esperada de respuesta. |
-| **48 h** | Pasa al dueño de proyecto, que contacta con el responsable de la otra parte. |
-| **5 días hábiles** | Sube a la reunión de bloqueos externos; jefatura decide: escalar, replanificar o descartar. |
-| **15 días hábiles** | Se trata en la revisión de portafolio. Un bloqueo de tres semanas es una decisión pendiente, no una espera. |
-
-Las dependencias externas (Comercial, Desarrollo, proveedor, cliente) siempre
-tienen un **dueño interno** que las persigue.
+| **0** | El dueño marca ⚑: qué falta y de quién depende. |
+| **2 días hábiles** | TorsaCore lo pone en «Para desbloquear». La jefatura lo resuelve fuera del tablero: llamada, visita, decisión. |
+| **2 semanas** | Ya no es una espera, es una decisión: escalar, replanificar o descartar. |
 
 ## 7. Acuerdos de trabajo
 
-- Cada persona actualiza sus tarjetas **cuando cambia algo**, no al final de la semana.
-- Una tarjeta sin movimiento durante **10 días hábiles** se revisa en el diario: se
-  desbloquea, se parte o se devuelve al Backlog.
-- Una tarjeta en Listo sin empezar durante **3 semanas** no era prioritaria: vuelve
-  al Backlog o se descarta en la reposición semanal.
-- No hay «% de avance». Si una tarjeta es grande, se parte o se usa una lista de
-  comprobación dentro de la tarjeta.
-- Las peticiones que llegan por chat se responden con «créala en el tablero y la
-  vemos en la reposición» salvo que sean urgentes.
-- La reunión se cancela si no hay nada que tratar. Nadie defiende una reunión vacía.
+- Una tarjeta sin movimiento en **10 días hábiles** la revisa su dueño: se
+  desbloquea, se parte o vuelve al Backlog.
+- Una tarjeta Lista que nadie toma en **3 semanas** no era prioritaria: vuelve al
+  Backlog o se descarta.
+- No hay «% de avance». Si una tarjeta es grande, se parte.
+- Si fuerzas el límite de 3, escribe por qué. No pasa nada; sirve para ver
+  patrones en la mirada mensual.
 
 ## 8. Lo que este marco NO pide
 
+- Validadores por actividad ni matrices RACI.
+- Reuniones diarias, puntos de historia ni sprints.
 - Actas de reunión (las decisiones quedan en la tarjeta).
-- Informes de estado semanales (los genera TorsaCore).
-- Planes de proyecto detallados para trabajo interno.
-- Estimaciones en horas. Se mide el tiempo real (cycle time) y se predice con él.
+- Informes de estado (los genera TorsaCore).
+- Estimaciones en horas. Se mide el tiempo real y se predice con él.
