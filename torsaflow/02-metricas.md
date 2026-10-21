@@ -1,7 +1,9 @@
 # 02 — Métricas (los índices)
 
-Ocho índices, todos calculados automáticamente por TorsaCore a partir del
-historial de movimientos de las tarjetas. Nadie rellena métricas a mano.
+Doce índices: ocho de flujo, calculados por TorsaCore a partir del historial de
+movimientos de las tarjetas, y cuatro de proyecto y entregables, que salen de los
+Charters de TorsaCore y de la Biblioteca técnica en Craft. Nadie rellena
+métricas a mano.
 
 ## Índices de flujo
 
@@ -15,6 +17,15 @@ historial de movimientos de las tarjetas. Nadie rellena métricas a mano.
 | 6 | **Fiabilidad de compromiso** | Tarjetas con fecha terminadas a tiempo / tarjetas con fecha que vencieron en el periodo | ≥ 80 % | Credibilidad del departamento ante clientes y otras áreas |
 | 7 | **Distribución del trabajo** | % de Hecho por clase de servicio y por proyecto | Mejora interna ≈ 20 % | Saber en qué se va realmente la capacidad |
 | 8 | **Higiene del tablero** | % de tarjetas activas con responsable único, proyecto y (si aplica) fecha | ≥ 95 % | Que los demás índices sean fiables |
+
+## Índices de proyecto y de entregables
+
+| # | Índice | Definición | Objetivo | Fuente |
+|---|---|---|---|---|
+| 9 | **Charters completos** | Charters activos *Aprobados* con responsable, fecha de inicio y fecha de fin | 100 % | Módulo Flujo (`higiene_proyectos`), alimentado por los Charters de TorsaCore |
+| 10 | **Planes ejecutables** | Fases del Plan de Trabajo con fecha y responsable (sin «A definir» / «A asignar») | 100 % antes de empezar | Respuesta de `POST /proyectos/{id}/plan` |
+| 11 | **Control documental completo** | Documentos de la Biblioteca con autor, responsable y aprobador con nombre | ≥ 95 % | Biblioteca técnica (Craft) |
+| 12 | **Huecos de la Biblioteca** | Pendientes abiertos en «00 - Índice documental» (carpetas vacías, traducciones, duplicados) | Tendencia a 0 | Craft |
 
 ### Por qué estos y no otros
 
@@ -39,7 +50,7 @@ Con el histórico de cycle time se responde a «¿para cuándo?» sin estimar:
 |---|---|
 | Diario | Edad del trabajo (tarjetas en ámbar/rojo) y ⚑ bloqueadas |
 | Reposición semanal | WIP por persona, compromisos que vencen en 2 semanas, throughput de la semana |
-| Revisión de portafolio | Los ocho, tendencia de 3 meses, distribución por proyecto |
+| Revisión de portafolio | Los doce, tendencia de 3 meses, distribución por portafolio y proyecto |
 | Retrospectiva | El índice que peor haya evolucionado → una mejora |
 
 ## Semáforo de edad

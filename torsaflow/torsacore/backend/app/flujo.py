@@ -1,8 +1,13 @@
 """Flujo: tablero de trabajo del departamento (marco TorsaFlow).
 
-Router FastAPI de referencia para integrar en TorsaCore. Guarda tarjetas,
-proyectos y el historial de eventos en SQLite; las métricas se calculan a partir
-del historial, nunca se introducen a mano.
+Router FastAPI de referencia para integrar en TorsaCore. Es la capa de ejecución
+que falta entre el Project Charter / Plan de Trabajo (planificación) y la
+Biblioteca técnica en Craft (entregables):
+
+    Charter aprobado → Plan de Trabajo → tarjetas (fases y tareas) → documento en la Biblioteca
+
+Guarda proyectos, tarjetas y el historial de eventos en SQLite; las métricas se
+calculan a partir del historial, nunca se introducen a mano.
 
 Integración en main.py:
 
@@ -56,11 +61,16 @@ Clase = Literal["urgente", "fecha_fija", "estandar", "mejora"]
 
 ESQUEMA = """
 CREATE TABLE IF NOT EXISTS flujo_proyectos (
-    id          INTEGER PRIMARY KEY,
-    nombre      TEXT NOT NULL UNIQUE,
-    cliente     TEXT,
-    odoo_id     INTEGER UNIQUE,
-    activo      INTEGER NOT NULL DEFAULT 1
+    id              INTEGER PRIMARY KEY,
+    codigo          TEXT NOT NULL UNIQUE,   -- código del Project Charter, p. ej. ES-SAF-DOC-PC-...
+    nombre          TEXT NOT NULL,
+    cliente         TEXT,
+    portafolio      TEXT,                   -- CMS, SAF, AO, NEPTUNE, INFRA, GLB...
+    responsable     TEXT,
+    estado_charter  TEXT,                   -- Borrador, Revisión, Aprobado
+    fecha_inicio    TEXT,
+    fecha_fin       TEXT,
+    activo          INTEGER NOT NULL DEFAULT 1
 );
 CREATE TABLE IF NOT EXISTS flujo_tarjetas (
     id                  INTEGER PRIMARY KEY,
@@ -78,7 +88,8 @@ CREATE TABLE IF NOT EXISTS flujo_tarjetas (
     bloqueo_depende_de  TEXT,
     bloqueo_desde       TEXT,
     bloqueo_respuesta   TEXT,
-    odoo_ref            TEXT,
+    fase                TEXT,   -- fase del Plan de Trabajo de la que sale
+    documento_codigo    TEXT,   -- código del entregable en la Biblioteca técnica
     creada_en           TEXT NOT NULL,
     lista_en            TEXT,
     iniciada_en         TEXT,
@@ -147,10 +158,27 @@ def _dt(valor: Optional[str]) -> Optional[datetime]:
 
 
 class ProyectoEntrada(BaseModel):
+    codigo: str = Field(min_length=2)
     nombre: str = Field(min_length=1)
     cliente: Optional[str] = None
-    odoo_id: Optional[int] = None
+    portafolio: Optional[str] = None
+    responsable: Optional[str] = None
+    estado_charter: Optional[str] = None
+    fecha_inicio: Optional[date] = None
+    fecha_fin: Optional[date] = None
     activo: bool = True
+
+
+class FasePlan(BaseModel):
+    fase: str = Field(min_length=2)
+    actividad: Optional[str] = None
+    inicio: Optional[str] = None  # admite «A definir»
+    fin: Optional[str] = None
+    responsable: Optional[str] = None  # admite «A asignar»
+
+
+class PlanDeTrabajo(BaseModel):
+    fases: list[FasePlan]
 
 
 class TarjetaEntrada(BaseModel):
@@ -161,7 +189,7 @@ class TarjetaEntrada(BaseModel):
     clase: Clase = "estandar"
     estado: Literal["backlog", "listo"] = "backlog"
     fecha_compromiso: Optional[date] = None
-    odoo_ref: Optional[str] = None
+    fase: Optional[str] = None
 
 
 class TarjetaCambios(BaseModel):
@@ -172,7 +200,7 @@ class TarjetaCambios(BaseModel):
     clase: Optional[Clase] = None
     fecha_compromiso: Optional[date] = None
     enlace_entregable: Optional[str] = None
-    odoo_ref: Optional[str] = None
+    documento_codigo: Optional[str] = None
 
 
 class Movimiento(BaseModel):
@@ -203,7 +231,7 @@ def faltas_listo(t: dict) -> list[str]:
     elif "/" in t["responsable"] or "," in t["responsable"]:
         faltas.append("El responsable debe ser una sola persona.")
     if not t.get("proyecto_id"):
-        faltas.append("Falta el proyecto (usa «Interno» si no es de cliente).")
+        faltas.append("Falta el proyecto (usa «Interno» si no tiene Charter).")
     if t.get("clase") == "fecha_fija" and not t.get("fecha_compromiso"):
         faltas.append("Una tarjeta de fecha fija necesita fecha de compromiso.")
     return faltas
@@ -212,8 +240,8 @@ def faltas_listo(t: dict) -> list[str]:
 def faltas_hecho(t: dict) -> list[str]:
     """Definición de Hecho."""
     faltas = []
-    if not t.get("enlace_entregable"):
-        faltas.append("Enlaza el entregable (Biblioteca técnica, SharePoint, Odoo o Craft).")
+    if not t.get("enlace_entregable") and not t.get("documento_codigo"):
+        faltas.append("Indica el código del entregable en la Biblioteca técnica o su enlace en Craft.")
     if not t.get("aceptada_por"):
         faltas.append("Registra la aceptación de quien lo pidió.")
     return faltas
@@ -281,15 +309,72 @@ def listar_proyectos(con: sqlite3.Connection = Depends(conexion)):
 
 @router.put("/proyectos")
 def guardar_proyecto(p: ProyectoEntrada, con: sqlite3.Connection = Depends(conexion)):
-    """Alta o actualización por nombre. El sincronizador de Odoo usa este mismo camino."""
+    """Alta o actualización por código de Charter. TorsaCore lo llama al guardar un Charter."""
+    datos = p.model_dump()
+    for campo in ("fecha_inicio", "fecha_fin"):
+        datos[campo] = datos[campo].isoformat() if datos[campo] else None
+    datos["activo"] = int(p.activo)
+    columnas = ", ".join(datos)
+    huecos = ", ".join("?" for _ in datos)
+    cambios = ", ".join(f"{k}=excluded.{k}" for k in datos if k != "codigo")
     con.execute(
-        "INSERT INTO flujo_proyectos (nombre, cliente, odoo_id, activo) VALUES (?,?,?,?) "
-        "ON CONFLICT(nombre) DO UPDATE SET cliente=excluded.cliente, "
-        "odoo_id=excluded.odoo_id, activo=excluded.activo",
-        (p.nombre, p.cliente, p.odoo_id, int(p.activo)),
+        f"INSERT INTO flujo_proyectos ({columnas}) VALUES ({huecos}) "
+        f"ON CONFLICT(codigo) DO UPDATE SET {cambios}",
+        tuple(datos.values()),
     )
-    fila = con.execute("SELECT * FROM flujo_proyectos WHERE nombre=?", (p.nombre,)).fetchone()
+    fila = con.execute("SELECT * FROM flujo_proyectos WHERE codigo=?", (p.codigo,)).fetchone()
     return dict(fila)
+
+
+def _sin_definir(valor: Optional[str]) -> bool:
+    return not valor or valor.strip().lower() in {"—", "-", "a definir", "a asignar", "pendiente de confirmar"}
+
+
+@router.post("/proyectos/{proyecto_id}/plan")
+def generar_desde_plan(
+    proyecto_id: int,
+    plan: PlanDeTrabajo,
+    con: sqlite3.Connection = Depends(conexion),
+    usuario: str = Depends(usuario_actual),
+    momento: datetime = Depends(ahora),
+):
+    """Convierte las fases del Plan de Trabajo aprobado en tarjetas.
+
+    Una tarjeta por fase. Si la fase tiene responsable y fecha de fin entra en
+    Listo como «fecha fija»; si tiene «A definir» o «A asignar» entra en Backlog
+    para completarla en la reposición semanal. Es idempotente: no duplica fases.
+    """
+    if con.execute("SELECT 1 FROM flujo_proyectos WHERE id=?", (proyecto_id,)).fetchone() is None:
+        raise HTTPException(404, "Proyecto no encontrado")
+    existentes = {
+        f[0] for f in con.execute(
+            "SELECT fase FROM flujo_tarjetas WHERE proyecto_id=? AND fase IS NOT NULL", (proyecto_id,))
+    }
+    creadas, incompletas = [], []
+    for f in plan.fases:
+        if f.fase in existentes:
+            continue
+        responsable = None if _sin_definir(f.responsable) else f.responsable.strip()
+        fin = None
+        if not _sin_definir(f.fin):
+            try:
+                fin = date.fromisoformat(f.fin.strip()).isoformat()
+            except ValueError:
+                fin = None
+        completa = bool(responsable and fin)
+        estado = "listo" if completa else "backlog"
+        titulo = f"{f.fase}: {f.actividad}" if f.actividad else f.fase
+        cur = con.execute(
+            "INSERT INTO flujo_tarjetas (titulo, responsable, solicitante, proyecto_id, clase, estado, "
+            "fecha_compromiso, fase, creada_en, lista_en, actualizada_en) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            (titulo[:300], responsable, usuario, proyecto_id, "fecha_fija" if fin else "estandar",
+             estado, fin, f.fase, _iso(momento), _iso(momento) if completa else None, _iso(momento)),
+        )
+        _evento(con, cur.lastrowid, momento, usuario, "creada", hacia=estado, detalle="plan de trabajo")
+        creadas.append(cur.lastrowid)
+        if not completa:
+            incompletas.append(f.fase)
+    return {"creadas": len(creadas), "ids": creadas, "fases_sin_fecha_o_responsable": incompletas}
 
 
 # --- Tarjetas --------------------------------------------------------------
@@ -334,7 +419,7 @@ def crear_tarjeta(
         raise HTTPException(409, {"reglas": faltas})
     cur = con.execute(
         "INSERT INTO flujo_tarjetas (titulo, responsable, solicitante, proyecto_id, clase, "
-        "estado, fecha_compromiso, odoo_ref, creada_en, lista_en, actualizada_en) "
+        "estado, fecha_compromiso, fase, creada_en, lista_en, actualizada_en) "
         "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
         (
             t.titulo.strip(),
@@ -344,7 +429,7 @@ def crear_tarjeta(
             t.clase,
             t.estado,
             t.fecha_compromiso.isoformat() if t.fecha_compromiso else None,
-            t.odoo_ref,
+            t.fase,
             _iso(momento),
             _iso(momento) if t.estado == "listo" else None,
             _iso(momento),
@@ -550,6 +635,23 @@ def _throughput_semanal(con: sqlite3.Connection, momento: datetime, semanas: int
     return cuentas
 
 
+def _higiene_proyectos(con: sqlite3.Connection) -> dict:
+    """Charters activos listos para ejecutarse: aprobados, con responsable y fechas."""
+    activos = [dict(f) for f in con.execute(
+        "SELECT * FROM flujo_proyectos WHERE activo=1 AND codigo<>'INTERNO'")]
+    completos = [
+        p for p in activos
+        if (p["estado_charter"] or "").lower() == "aprobado"
+        and not _sin_definir(p["responsable"]) and p["fecha_inicio"] and p["fecha_fin"]
+    ]
+    return {
+        "activos": len(activos),
+        "completos": len(completos),
+        "pct": round(100 * len(completos) / len(activos), 1) if activos else None,
+        "incompletos": [p["codigo"] for p in activos if p not in completos],
+    }
+
+
 @router.get("/metricas")
 def metricas(
     semanas: int = Query(12, ge=1, le=52),
@@ -586,17 +688,20 @@ def metricas(
     )
 
     hechas = [dict(f) for f in con.execute(
-        "SELECT t.clase, p.nombre AS proyecto FROM flujo_tarjetas t "
+        "SELECT t.clase, p.nombre AS proyecto, p.portafolio FROM flujo_tarjetas t "
         "LEFT JOIN flujo_proyectos p ON p.id=t.proyecto_id "
         "WHERE t.estado='hecho' AND t.terminada_en>=?",
         (_iso(desde),),
     )]
     por_clase: dict[str, int] = {}
     por_proyecto: dict[str, int] = {}
+    por_portafolio: dict[str, int] = {}
     for h in hechas:
         por_clase[h["clase"]] = por_clase.get(h["clase"], 0) + 1
         nombre = h["proyecto"] or "(sin proyecto)"
         por_proyecto[nombre] = por_proyecto.get(nombre, 0) + 1
+        cartera = h["portafolio"] or "(sin portafolio)"
+        por_portafolio[cartera] = por_portafolio.get(cartera, 0) + 1
 
     def limpia(t: dict) -> bool:
         if not t["responsable"] or "/" in t["responsable"] or not t["proyecto_id"]:
@@ -625,8 +730,9 @@ def metricas(
             "a_tiempo": a_tiempo,
             "pct": round(100 * a_tiempo / len(vencidas_periodo), 1) if vencidas_periodo else None,
         },
-        "distribucion": {"por_clase": por_clase, "por_proyecto": por_proyecto},
+        "distribucion": {"por_clase": por_clase, "por_proyecto": por_proyecto, "por_portafolio": por_portafolio},
         "higiene_pct": round(100 * sum(limpia(t) for t in abiertas) / len(abiertas), 1) if abiertas else 100.0,
+        "higiene_proyectos": _higiene_proyectos(con),
     }
 
 
@@ -664,7 +770,7 @@ def resumen_semanal(
     con: sqlite3.Connection = Depends(conexion),
     momento: datetime = Depends(ahora),
 ):
-    """Sustituye al Excel semanal: lo que se mira en la reposición del lunes."""
+    """Agenda de la reposición del lunes, generada desde el tablero."""
     lunes = (momento - timedelta(days=momento.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
     hace_una_semana = lunes - timedelta(weeks=1)
     en_dos_semanas = (momento + timedelta(weeks=2)).date().isoformat()

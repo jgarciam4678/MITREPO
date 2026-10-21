@@ -30,7 +30,8 @@ def entorno(tmp_path, monkeypatch):
     reloj = Reloj(LUNES)
     app.dependency_overrides[flujo.ahora] = reloj
     cliente = TestClient(app, headers={"X-Usuario": "jefatura"})
-    proyecto = cliente.put("/api/flujo/proyectos", json={"nombre": "Interno"}).json()
+    proyecto = cliente.put("/api/flujo/proyectos", json={
+        "codigo": "INTERNO", "nombre": "Interno", "portafolio": "GLB"}).json()
     return cliente, reloj, proyecto["id"]
 
 
@@ -83,7 +84,7 @@ def test_definicion_de_hecho(entorno):
     mover(cliente, tid, "en_curso")
     r = mover(cliente, tid, "hecho")
     assert r.status_code == 409 and len(r.json()["detail"]["reglas"]) == 2
-    cliente.patch(f"/api/flujo/tarjetas/{tid}", json={"enlace_entregable": "https://biblioteca/doc"})
+    cliente.patch(f"/api/flujo/tarjetas/{tid}", json={"documento_codigo": "ES-CMS-PROC-EJEMPLO"})
     cliente.post(f"/api/flujo/tarjetas/{tid}/aceptar", json={"por": "pm"})
     assert mover(cliente, tid, "hecho").json()["estado"] == "hecho"
 
@@ -145,3 +146,27 @@ def test_prevision_monte_carlo(entorno):
         reloj.avanzar(days=7)
     p = cliente.get("/api/flujo/prevision?n=10").json()
     assert p["semanas_p50"] <= p["semanas_p85"] <= p["semanas_p95"]
+
+
+def test_tarjetas_desde_plan_de_trabajo(entorno):
+    cliente, _, _ = entorno
+    proyecto = cliente.put("/api/flujo/proyectos", json={
+        "codigo": "ES-SAF-DOC-PC-DEMO", "nombre": "Demo SAF", "portafolio": "SAF",
+        "responsable": "pm", "estado_charter": "Aprobado"}).json()
+    plan = {"fases": [
+        {"fase": "Visita técnica", "actividad": "Levantamiento de operación",
+         "inicio": "2026-11-02", "fin": "2026-11-06", "responsable": "ana"},
+        {"fase": "Aprobación SSOMA", "inicio": "A definir", "fin": "A definir", "responsable": "A asignar"},
+    ]}
+    r = cliente.post(f"/api/flujo/proyectos/{proyecto['id']}/plan", json=plan).json()
+    assert r["creadas"] == 2 and r["fases_sin_fecha_o_responsable"] == ["Aprobación SSOMA"]
+    tarjetas = {t["fase"]: t for t in cliente.get(f"/api/flujo/tarjetas?proyecto_id={proyecto['id']}").json()}
+    assert tarjetas["Visita técnica"]["estado"] == "listo"
+    assert tarjetas["Visita técnica"]["clase"] == "fecha_fija"
+    assert tarjetas["Aprobación SSOMA"]["estado"] == "backlog"
+    # idempotente
+    assert cliente.post(f"/api/flujo/proyectos/{proyecto['id']}/plan", json=plan).json()["creadas"] == 0
+
+    # el Charter no tiene fechas: cuenta como incompleto en la higiene de proyectos
+    h = cliente.get("/api/flujo/metricas").json()["higiene_proyectos"]
+    assert h == {"activos": 1, "completos": 0, "pct": 0.0, "incompletos": ["ES-SAF-DOC-PC-DEMO"]}

@@ -4,34 +4,49 @@ Especificación del módulo que lleva el marco a TorsaCore. El código de
 referencia está en [`torsacore/`](torsacore/) y sigue la estructura habitual de
 TorsaCore (`backend/app/*.py` + `frontend/src/components/*.jsx`).
 
+## Qué hay hoy y qué falta
+
+| Capa | Hoy | Pieza |
+|---|---|---|
+| **Planificación** | TorsaCore genera el **Project Charter**, lo pasa por aprobación y, una vez aprobado, genera el **Plan de Trabajo** (fases, responsabilidades, riesgos, matriz de pruebas, KPIs, entregables) | Existe |
+| **Entregables** | La **Biblioteca técnica** (Craft) guarda documentos con control documental: código, versión, estado, clasificación, portafolio, nivel, autor/responsable/aprobador | Existe |
+| **Ejecución** | No hay sitio donde se vea quién hace qué esta semana, qué fase está bloqueada y qué se ha entregado. Las listas de comprobación de Craft son de procedimientos, no de seguimiento | **Flujo (nuevo)** |
+
+Flujo une las dos capas que ya existen: las fases del Plan de Trabajo se
+convierten en tarjetas, y una tarjeta solo llega a Hecho cuando su entregable
+está en la Biblioteca técnica.
+
 ## Decisiones de diseño
 
 | Decisión | Por qué |
 |---|---|
-| **TorsaCore es el sistema de registro del trabajo del departamento** (no el Excel, no el chat) | Una sola fuente de verdad. Todo el equipo ya entra en TorsaCore cada día. |
-| **Odoo sigue siendo el sistema de proyectos y tickets** | Flujo **no** duplica Odoo: lee de él el catálogo de proyectos y enlaza tickets (`odoo_ref`). Así el campo «proyecto» nunca es texto libre ni «-». |
+| **TorsaCore es el sistema de registro del trabajo del departamento** | Una sola fuente de verdad, en la herramienta que el equipo ya usa a diario. |
+| **El catálogo de proyectos son los Project Charters de TorsaCore** | El proyecto de una tarjeta nunca es texto libre: es un código de Charter (o «Interno»). Hereda cliente, portafolio, responsable y fechas. |
+| **Las tarjetas de proyecto nacen del Plan de Trabajo** | Al aprobarse un Plan, cada fase se convierte en una tarjeta con su fecha y su responsable. Lo que está «A definir» / «A asignar» entra en Backlog y se ve como hueco. |
+| **Hecho = entregable en la Biblioteca técnica** | La tarjeta guarda el código del documento (`documento_codigo`). La evidencia vive en Craft, no en adjuntos. |
 | **Las métricas salen del historial de eventos** | Cada movimiento queda registrado. Nadie rellena «% avance» ni informes. |
-| **Las reglas avisan, no prohíben** | Saltarse el límite de WIP es posible indicando el porqué; queda registrado y se revisa en la retrospectiva. Es un marco ágil, no un sistema de permisos. |
-| **Definición de Listo y de Hecho en el propio flujo** | No se puede mover a Hecho sin enlace al entregable y aceptación; no se puede empezar sin responsable único y proyecto. |
+| **Las reglas avisan, no prohíben** | Saltarse el límite de WIP es posible indicando el porqué; queda registrado y se revisa en la retrospectiva. |
 
 ## Modelo de datos
 
 ```
-flujo_proyectos  (id, nombre, cliente, odoo_id, activo)
+flujo_proyectos  (id, codigo, nombre, cliente, portafolio, responsable,
+                  estado_charter, fecha_inicio, fecha_fin, activo)
 flujo_tarjetas   (id, titulo, responsable, solicitante, proyecto_id, clase, estado,
-                  fecha_compromiso, enlace_entregable, aceptada_por,
+                  fecha_compromiso, fase, documento_codigo, enlace_entregable, aceptada_por,
                   bloqueada, bloqueo_motivo, bloqueo_depende_de, bloqueo_desde, bloqueo_respuesta,
-                  odoo_ref, creada_en, lista_en, iniciada_en, terminada_en, actualizada_en)
+                  creada_en, lista_en, iniciada_en, terminada_en, actualizada_en)
 flujo_eventos    (id, tarjeta_id, momento, usuario, tipo, desde, hacia, detalle)
                   tipo ∈ creada | editada | replanificada | movida | bloqueada |
-                         desbloqueada | aceptada | wip_forzado | importada
+                         desbloqueada | aceptada | wip_forzado
 ```
 
+- `flujo_proyectos.codigo` = código del Charter (p. ej. `ES-SAF-DOC-PC-…`); `INTERNO` para trabajo sin Charter.
+- `portafolio` usa los mismos valores que el control documental (CMS, SAF, AO, NEPTUNE, INFRA, GLB…).
 - **Estados:** `backlog → listo → en_curso → en_validacion → hecho`, más `descartado`.
 - **Clases:** `urgente`, `fecha_fija`, `estandar`, `mejora`.
 - **Bloqueo** es una marca, no un estado: la tarjeta conserva su columna.
-- Las **replanificaciones** de fecha generan un evento propio: son visibles y
-  cuentan para la fiabilidad.
+- Las **replanificaciones** de fecha generan un evento propio y cuentan para la fiabilidad.
 
 ## Reglas que aplica el backend
 
@@ -41,9 +56,10 @@ flujo_eventos    (id, tarjeta_id, momento, usuario, tipo, desde, hacia, detalle)
 | Pasar a En curso | Máx. 3 por persona | Aviso; se puede forzar con justificación |
 | Pasar a En validación | Máx. 2 por persona | Aviso; se puede forzar con justificación |
 | Pasar a En curso una urgente | Máx. 1 urgente activa en el departamento | Aviso; se puede forzar |
-| Pasar a Hecho | Enlace al entregable + aceptación registrada | Obligatoria |
+| Pasar a Hecho | Código del entregable en la Biblioteca (o enlace de Craft) + aceptación registrada | Obligatoria |
 | Descartar | Motivo en una línea | Obligatoria |
 | Bloquear | Motivo + de quién depende | Obligatoria |
+| Generar desde el Plan | «A definir», «A asignar», «—» y «Pendiente de confirmar» cuentan como vacíos | Fase a Backlog |
 
 Las reglas rotas devuelven `409` con `{"reglas": [...]}` en lenguaje claro, y
 `"se_puede_forzar": true` cuando basta con justificarlo.
@@ -52,16 +68,17 @@ Las reglas rotas devuelven `409` con `{"reglas": [...]}` en lenguaje claro, y
 
 | Método | Ruta | Uso |
 |---|---|---|
-| `GET` | `/proyectos` | Catálogo de proyectos |
-| `PUT` | `/proyectos` | Alta/actualización (lo usa el sincronizador de Odoo) |
+| `GET` | `/proyectos` | Catálogo de proyectos (Charters) |
+| `PUT` | `/proyectos` | Alta/actualización por código de Charter. TorsaCore lo llama al guardar o aprobar un Charter |
+| `POST` | `/proyectos/{id}/plan` | `{fases: [{fase, actividad, inicio, fin, responsable}]}`: crea una tarjeta por fase. Idempotente. Devuelve las fases sin fecha o responsable |
 | `GET` | `/tarjetas?responsable=&proyecto_id=&estado=` | Tarjetas abiertas con `edad`, `semaforo` y `sin_movimiento` |
 | `POST` | `/tarjetas` | Crear (en Backlog o Listo) |
-| `PATCH` | `/tarjetas/{id}` | Editar campos |
+| `PATCH` | `/tarjetas/{id}` | Editar campos, incluido `documento_codigo` |
 | `POST` | `/tarjetas/{id}/mover` | `{estado, motivo?, justificacion_wip?}` |
 | `POST` | `/tarjetas/{id}/bloquear` · `/desbloquear` | Marca ⚑ |
 | `POST` | `/tarjetas/{id}/aceptar` | `{por}`: aceptación del solicitante |
 | `GET` | `/tarjetas/{id}/historial` | Eventos de la tarjeta |
-| `GET` | `/metricas?semanas=12` | Los 8 índices de [02](02-metricas.md) |
+| `GET` | `/metricas?semanas=12` | Índices de flujo + `higiene_proyectos` (Charters completos) |
 | `GET` | `/prevision?n=20` | Monte Carlo: semanas p50/p85/p95 para terminar N tarjetas |
 | `GET` | `/resumen-semanal` | Lo que se mira el lunes: terminadas, vencen en 2 semanas, bloqueadas, envejecidas, sin movimiento, sobre WIP |
 
@@ -73,15 +90,16 @@ Las reglas rotas devuelven `409` con `{"reglas": [...]}` en lenguaje claro, y
 Setup o CMS Studio.
 
 ```
-┌ Flujo [Todo el equipo ▾] [Todos los proyectos ▾] [Nueva tarjeta: verbo + entregable] [Añadir]  Tablero | Resumen ⟳ ┐
-├ Terminadas semana │ Cycle time p85 │ En rojo │ % bloqueado │ Fiabilidad │ Higiene ┤
+┌ Flujo [Equipo ▾] [Portafolio ▾] [Proyecto ▾] [Nueva tarjeta: verbo + entregable] [Añadir]   Tablero | Resumen ⟳ ┐
+├ Terminadas │ Cycle time p85 │ En rojo │ % bloqueado │ Fiabilidad │ Higiene tablero │ Charters completos ┤
 ├ Backlog │ Listo │ En curso (3/persona) │ En validación (2/persona) │ Hecho (7 días) ┤
-│  tarjeta: clase · edad · título · responsable · proyecto · 📅 · ⚑ motivo · [→ siguiente] [⚑]          │
+│  tarjeta: clase · portafolio · edad · título · responsable · proyecto · fase · 📅 · 📄 código · ⚑ motivo │
 ```
 
 - Borde izquierdo de cada tarjeta = semáforo de edad (verde/ámbar/rojo).
 - Fondo tenue rojo = bloqueada. Fecha en rojo = compromiso vencido.
 - «sin responsable» / «sin proyecto» en ámbar: higiene pendiente.
+- Al mover a Hecho pide el código del documento en la Biblioteca y quién lo acepta.
 - Vista **Resumen semanal** = la agenda de la reunión del lunes.
 
 ## Integración con TorsaCore — pasos
@@ -95,20 +113,18 @@ Setup o CMS Studio.
    si procede, `conexion` por el acceso a datos que use el backend (marcados `ADAPTAR`).
 3. Copiar `Flujo.jsx` y `Flujo.css` a `frontend/src/components/`, añadir la
    entrada al menú lateral y las cadenas a `es.json` / `en.json` si se quiere i18n.
-4. **Sincronizador de proyectos desde Odoo** (tarea programada diaria): leer
-   `project.project` activos por XML-RPC, con la misma conexión a Odoo que ya
-   usa TorsaCore, y llamar a `PUT /api/flujo/proyectos` con
-   `{nombre, cliente, odoo_id}`. Añadir siempre un proyecto «Interno».
-5. **Migración del Excel semanal:**
-   ```bash
-   cd backend
-   python -m app.importar_seguimiento_cw seguimiento_cw.xlsx             # diagnóstico
-   python -m app.importar_seguimiento_cw seguimiento_cw.xlsx --db flujo.db  # carga
-   ```
-   Carga solo lo abierto de la hoja CW más reciente. «En pausa» entra como
-   bloqueada; «Por iniciar» sin proyecto o responsable único entra en Backlog.
-6. Opcional: aviso del resumen semanal al canal de Teams del departamento los
-   lunes a primera hora (webhook entrante con el JSON de `/resumen-semanal`).
+4. **Enganche con el Project Charter:** al guardar o cambiar de estado un
+   Charter, llamar a `PUT /api/flujo/proyectos` con su código, nombre, cliente,
+   portafolio, responsable, estado y fechas. Crear una vez el proyecto `INTERNO`
+   (portafolio `GLB`).
+5. **Enganche con el Plan de Trabajo:** cuando se aprueba un Plan, enviar su
+   tabla *Plan de ejecución* (fase, actividad, inicio, fin) y el responsable de
+   cada fase a `POST /api/flujo/proyectos/{id}/plan`. Si la respuesta trae
+   `fases_sin_fecha_o_responsable`, mostrarlas en el propio Plan como aviso.
+6. **Enganche con la Biblioteca técnica:** al publicar un documento con
+   `Proyecto: …` en su control documental, TorsaCore puede proponer cerrar la
+   tarjeta abierta de ese proyecto rellenando `documento_codigo`.
+7. Opcional: enviar `/resumen-semanal` al canal del departamento los lunes a primera hora.
 
 ## Pruebas
 
@@ -120,7 +136,7 @@ python -m pytest -q
 
 Cubren: Definición de Listo y de Hecho, límite de WIP forzable con registro,
 transiciones inválidas, bloqueos, métricas, semáforo de edad, previsión Monte
-Carlo e importación del Excel (con un Excel sintético, sin datos reales).
+Carlo, generación de tarjetas desde el Plan de Trabajo e higiene de Charters.
 
 ## Clasificación
 

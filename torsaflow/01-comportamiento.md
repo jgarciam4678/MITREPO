@@ -23,9 +23,16 @@ los hábitos mínimos. Todo lo que no está aquí queda a criterio de cada perso
 
 | Nivel | Qué se ve | Quién | Cadencia |
 |---|---|---|---|
-| **3 · Portafolio** | Proyectos y clientes activos, su estado y su prioridad relativa | Jefatura + PMs | Mensual |
-| **2 · Coordinación** | Dependencias con Comercial, Desarrollo, proveedores y cliente | Jefatura + PMs + facilitador | Semanal |
-| **1 · Equipo** | Tarjetas de cada persona, del Backlog a Hecho | Todo el equipo | Diario |
+| **3 · Portafolio** | Portafolios (CMS, SAF, AO, NEPTUNE, INFRA…) y sus Project Charters en TorsaCore: estado, prioridad relativa, qué se para | Jefatura + PMs | Mensual |
+| **2 · Coordinación** | Fases del Plan de Trabajo de cada proyecto y dependencias con Comercial, Desarrollo, proveedores y cliente | Jefatura + PMs + facilitador | Semanal |
+| **1 · Equipo** | Tarjetas de cada persona en el módulo Flujo, del Backlog a Hecho | Todo el equipo | Diario |
+
+Cada nivel ya tiene su soporte en TorsaCore y Craft:
+
+```
+Project Charter (TorsaCore) ──aprobado──▶ Plan de Trabajo ──fases──▶ Tarjetas (Flujo) ──▶ Documento en la Biblioteca técnica (Craft)
+       nivel 3                               nivel 2                 nivel 1               evidencia de Hecho
+```
 
 Los problemas suben de nivel cuando el nivel inferior no puede resolverlos; las
 prioridades bajan del nivel superior. Nadie prioriza su propio trabajo contra el
@@ -36,7 +43,7 @@ de otro proyecto: eso se decide en nivel 3.
 | Rol | Lo ejerce | Responsabilidad |
 |---|---|---|
 | **Responsable de tarjeta** | Cualquier persona | Mueve su tarjeta en el momento, declara bloqueos, enlaza el entregable |
-| **Dueño de proyecto** | PM o ingeniero líder del proyecto | Ordena el backlog de su proyecto, negocia fechas con el cliente interno o externo |
+| **Dueño de proyecto** | Responsable Torsa del Charter (Project Manager del Plan de Trabajo) | Mantiene Charter y Plan al día, ordena el backlog de su proyecto, negocia fechas con el cliente |
 | **Facilitador de flujo** | Rotativo cada mes | Conduce el diario y la reunión semanal, vigila tarjetas envejecidas y límites de WIP |
 | **Jefatura** | Jefe de departamento | Decide prioridades entre proyectos, desbloquea lo que el equipo no puede, protege el WIP |
 
@@ -61,12 +68,22 @@ su estado. Obliga a indicar *motivo*, *de quién depende* y *desde cuándo*.
 
 | Clase | Ejemplo | Regla |
 |---|---|---|
-| **Urgente** | Incidencia de cliente parada, fallo en producción | Salta la cola. Máximo 1 en todo el departamento a la vez. |
+| **Urgente** | Incidencia de cliente cubierta por el SLA, fallo en producción | Salta la cola. Máximo 1 en todo el departamento a la vez. |
 | **Fecha fija** | Entregable comprometido con cliente, auditoría | Se empieza con margen; se revisa cada semana. |
 | **Estándar** | La mayoría del trabajo | Orden del backlog. |
 | **Mejora interna** | Guías de taller, herramientas, documentación propia | Cupo reservado del ~20 % de la capacidad para que no se coma ni se olvide. |
 
-### Definición de Listo (DoR) — 4 preguntas
+### Definición de Listo de un proyecto
+
+Un proyecto no empieza a generar tarjetas hasta que en TorsaCore:
+
+1. El **Project Charter** está *Aprobado*, con responsable Torsa, fecha de inicio,
+   fecha de fin y criterios de éxito medibles.
+2. El **Plan de Trabajo** generado desde el Charter tiene cada fase con fechas y
+   cada rol asignado. Un «A definir» o «A asignar» es trabajo pendiente del dueño
+   de proyecto, no un plan.
+
+### Definición de Listo de una tarjeta (DoR) — 4 preguntas
 
 1. ¿El título empieza por un verbo y nombra el entregable? («Elaborar protocolo de pruebas SAF», no «Protocolo»).
 2. ¿Tiene un único responsable y un proyecto del catálogo (o «Interno»)?
@@ -75,18 +92,23 @@ su estado. Obliga a indicar *motivo*, *de quién depende* y *desde cuándo*.
 
 ### Definición de Hecho (DoD) — 3 comprobaciones
 
-1. El entregable está enlazado en la tarjeta (Biblioteca técnica de TorsaCore,
-   SharePoint, Odoo o Craft). No se adjuntan copias.
+1. La tarjeta indica el código del entregable en la Biblioteca técnica (o su
+   enlace en Craft). No se adjuntan copias.
 2. Quien lo pidió lo ha aceptado (basta un «OK» registrado en la tarjeta).
-3. Si es documentación técnica, está publicada en la Biblioteca técnica con su
-   código y tabla de control.
+3. Si es documentación técnica, está publicada en la Biblioteca técnica con el
+   control documental completo: código, versión, estado, clasificación,
+   portafolio y nivel, y autor, responsable y aprobador con nombre (nunca
+   «Pendiente de confirmar»).
+
+La Definición de Hecho de un **proyecto** es la que ya marca el Plan de Trabajo:
+informe final y certificado de aceptación publicados en la Biblioteca técnica.
 
 ## 5. Cadencias (≤ 1 h 45 min por persona y semana)
 
 | Reunión | Cuándo | Duración | Quién | Formato |
 |---|---|---|---|---|
 | **Diario de flujo** | Cada día, misma hora | 15 min | Equipo | De pie frente al tablero. Se recorre **de derecha a izquierda** (lo más cerca de Hecho primero). Solo se habla de bloqueos, tarjetas envejecidas y ayuda necesaria. No es una ronda de «qué hice ayer». |
-| **Reposición semanal** | Lunes | 30 min | Jefatura, PMs, facilitador | ¿Qué terminamos? ¿Qué entra a Listo? ¿Qué compromisos de fecha vencen en 2 semanas? Sustituye al Excel semanal. |
+| **Reposición semanal** | Lunes | 30 min | Jefatura, PMs, facilitador | ¿Qué terminamos? ¿Qué entra a Listo? ¿Qué compromisos de fecha vencen en 2 semanas? ¿Qué Charters o Planes tienen huecos? Se hace sobre el Resumen semanal de TorsaCore. |
 | **Bloqueos externos** | Semanal, tras la reposición | 20 min | Jefatura + enlaces de Comercial/Desarrollo | Solo tarjetas con ⚑ que dependen de otra área. Sale una fecha o una decisión por tarjeta. |
 | **Revisión de portafolio** | Primer lunes del mes | 60 min | Jefatura + PMs | Métricas del mes, prioridad de proyectos, qué paramos para poder empezar otra cosa. |
 | **Retrospectiva** | Último viernes del mes | 45 min | Todo el equipo | Una sola mejora concreta al proceso, con responsable. Se revisa la del mes anterior. |

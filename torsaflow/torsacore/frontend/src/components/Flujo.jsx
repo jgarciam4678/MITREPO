@@ -60,13 +60,16 @@ function Tarjeta({ t, proyectos, onMover, onBloqueo, onEditar }) {
     <article className={`flujo-card ${t.bloqueada ? "is-bloqueada" : ""} ${t.semaforo ? `edad-${t.semaforo}` : ""}`}>
       <header className="flujo-card-h">
         <span className={`cmss-pill flujo-clase-${t.clase}`}>{CLASES[t.clase]}</span>
+        {proyecto?.portafolio && <span className="cmss-pill">{proyecto.portafolio}</span>}
         {t.edad != null && <span className="flujo-edad" title="Días hábiles en curso">{t.edad} d</span>}
       </header>
       <button type="button" className="flujo-titulo" onClick={() => onEditar(t)}>{t.titulo}</button>
       <div className="flujo-meta">
         <span>{t.responsable || <em className="flujo-falta">sin responsable</em>}</span>
         <span>{proyecto ? proyecto.nombre : <em className="flujo-falta">sin proyecto</em>}</span>
+        {t.fase && <span>Fase: {t.fase}</span>}
         {t.fecha_compromiso && <span className={vencida ? "flujo-vencida" : ""}>📅 {t.fecha_compromiso}</span>}
+        {t.documento_codigo && <span>📄 {t.documento_codigo}</span>}
       </div>
       {t.bloqueada ? (
         <p className="flujo-bloqueo">⚑ {t.bloqueo_depende_de}: {t.bloqueo_motivo}</p>
@@ -96,7 +99,8 @@ function Metricas({ m }) {
     ["En rojo por edad", m.edad.rojo],
     ["% bloqueado", `${m.pct_bloqueado} %`],
     ["Fiabilidad", m.fiabilidad.pct != null ? `${m.fiabilidad.pct} %` : "—"],
-    ["Higiene", `${m.higiene_pct} %`],
+    ["Higiene tablero", `${m.higiene_pct} %`],
+    ["Charters completos", m.higiene_proyectos.pct != null ? `${m.higiene_proyectos.pct} %` : "—"],
   ];
   return (
     <section className="flujo-kpis">
@@ -152,7 +156,7 @@ export default function Flujo() {
   const [proyectos, setProyectos] = useState([]);
   const [metricas, setMetricas] = useState(null);
   const [resumen, setResumen] = useState(null);
-  const [filtro, setFiltro] = useState({ responsable: "", proyecto: "" });
+  const [filtro, setFiltro] = useState({ responsable: "", proyecto: "", portafolio: "" });
   const [error, setError] = useState(null);
   const [nueva, setNueva] = useState("");
 
@@ -184,10 +188,17 @@ export default function Flujo() {
     [tarjetas, hechas],
   );
 
+  const portafolios = useMemo(
+    () => [...new Set(proyectos.map((p) => p.portafolio).filter(Boolean))].sort(),
+    [proyectos],
+  );
+  const portafolioDe = (t) => proyectos.find((p) => p.id === t.proyecto_id)?.portafolio;
+
   const visibles = [...tarjetas, ...hechas].filter(
     (t) =>
       (!filtro.responsable || t.responsable === filtro.responsable) &&
-      (!filtro.proyecto || String(t.proyecto_id) === filtro.proyecto),
+      (!filtro.proyecto || String(t.proyecto_id) === filtro.proyecto) &&
+      (!filtro.portafolio || portafolioDe(t) === filtro.portafolio),
   );
 
   const conReglas = async (accion) => {
@@ -203,13 +214,15 @@ export default function Flujo() {
   };
 
   const mover = async (t, estado) => {
-    if (estado === "hecho" && (!t.enlace_entregable || !t.aceptada_por)) {
-      const enlace = t.enlace_entregable || window.prompt("Enlace al entregable (Biblioteca técnica, SharePoint, Odoo…):");
-      if (!enlace) return;
+    const tieneEntregable = t.documento_codigo || t.enlace_entregable;
+    if (estado === "hecho" && (!tieneEntregable || !t.aceptada_por)) {
+      const entregable = tieneEntregable || window.prompt("Código del entregable en la Biblioteca técnica (o enlace de Craft):");
+      if (!entregable) return;
       const por = t.aceptada_por || window.prompt("¿Quién lo ha aceptado?");
       if (!por) return;
+      const campo = /^https?:\/\//.test(entregable) ? "enlace_entregable" : "documento_codigo";
       await conReglas(async () => {
-        await api(`/tarjetas/${t.id}`, { method: "PATCH", body: { enlace_entregable: enlace } });
+        if (!tieneEntregable) await api(`/tarjetas/${t.id}`, { method: "PATCH", body: { [campo]: entregable } });
         await api(`/tarjetas/${t.id}/aceptar`, { method: "POST", body: { por } });
       });
     }
@@ -269,6 +282,10 @@ export default function Flujo() {
         <select value={filtro.responsable} onChange={(e) => setFiltro({ ...filtro, responsable: e.target.value })}>
           <option value="">Todo el equipo</option>
           {responsables.map((r) => <option key={r} value={r}>{r}</option>)}
+        </select>
+        <select value={filtro.portafolio} onChange={(e) => setFiltro({ ...filtro, portafolio: e.target.value })}>
+          <option value="">Todos los portafolios</option>
+          {portafolios.map((p) => <option key={p} value={p}>{p}</option>)}
         </select>
         <select value={filtro.proyecto} onChange={(e) => setFiltro({ ...filtro, proyecto: e.target.value })}>
           <option value="">Todos los proyectos</option>
