@@ -1,0 +1,62 @@
+/* Flujo: solo tokens de App.css, para heredar tema claro/oscuro. */
+
+.flujo { display: flex; flex-direction: column; gap: 12px; }
+
+.flujo .cmss-bar select,
+.flujo-nueva input {
+  background: var(--bg-page); color: var(--text-primary);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  font: inherit; font-size: var(--fs-sm); padding: 6px 9px;
+}
+.flujo-nueva { display: flex; gap: 6px; flex: 1 1 260px; }
+.flujo-nueva input { flex: 1; min-width: 0; }
+.flujo-nueva input:focus, .flujo .cmss-bar select:focus { outline: none; border-color: var(--accent); }
+.flujo-vistas { display: flex; gap: 6px; margin-left: auto; }
+.flujo-vistas .is-on { border-color: var(--accent); color: var(--text-heading); }
+
+.flujo-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.flujo-kpi { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; }
+.flujo-kpi strong { font-size: var(--fs-md); color: var(--text-heading); font-variant-numeric: tabular-nums; }
+
+.flujo-tablero { display: grid; grid-template-columns: repeat(5, minmax(220px, 1fr)); gap: 12px; overflow-x: auto; }
+.flujo-col { display: flex; flex-direction: column; gap: 8px; padding: 10px; min-height: 240px; }
+.flujo-col.is-sobre-limite { border-color: var(--status-warning); }
+.flujo-limite { font-weight: 400; text-transform: none; letter-spacing: 0; }
+
+.flujo-card {
+  display: flex; flex-direction: column; gap: 6px; padding: 8px 10px;
+  background: var(--bg-surface-2); border: 1px solid var(--border);
+  border-left: 3px solid var(--border-strong); border-radius: var(--radius-sm);
+}
+.flujo-card.edad-verde { border-left-color: var(--status-good-text); }
+.flujo-card.edad-ambar { border-left-color: var(--status-warning); }
+.flujo-card.edad-rojo  { border-left-color: var(--status-critical-text); }
+.flujo-card.is-bloqueada { background: color-mix(in srgb, var(--status-critical) 8%, var(--bg-surface-2)); }
+
+.flujo-card-h { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.flujo-edad { font-size: var(--fs-xs); color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.flujo-titulo {
+  all: unset; cursor: pointer; color: var(--text-heading); font-weight: 600; line-height: 1.3;
+}
+.flujo-titulo:hover { text-decoration: underline; }
+.flujo-meta { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: var(--fs-xs); color: var(--text-muted); }
+.flujo-falta { color: var(--status-warning); }
+.flujo-vencida { color: var(--status-critical-text); font-weight: 600; }
+.flujo-bloqueo { margin: 0; font-size: var(--fs-xs); color: var(--status-critical-text); }
+.flujo-acciones { display: flex; flex-wrap: wrap; gap: 4px; }
+
+.flujo-clase-urgente { color: var(--status-critical-text); }
+.flujo-clase-fecha_fija { color: var(--status-warning); }
+.flujo-clase-mejora { color: var(--accent); }
+
+.flujo-resumen { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
+.flujo-resumen ul { margin: 6px 0 0; padding-left: 18px; font-size: var(--fs-sm); }
+.flujo-aviso {
+  grid-column: 1 / -1; margin: 0; padding: 8px 12px; border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--status-warning) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--status-warning) 40%, transparent);
+}
+
+@media (max-width: 1100px) {
+  .flujo-tablero { grid-template-columns: repeat(5, 260px); }
+}
