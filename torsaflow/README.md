@@ -31,6 +31,7 @@ no el viernes.
 | [02 — Métricas](02-metricas.md) | Jefatura y PMs | Los índices, cómo se calculan y objetivos |
 | [03 — Módulo Flujo en TorsaCore](03-torsacore-modulo.md) | Desarrollo TorsaCore | Modelo de datos, reglas, API, pantallas, enlace con Charter, Plan y Biblioteca |
 | [04 — Plan de despliegue](04-despliegue.md) | Jefatura | 90 días, criterios de éxito, antipatrones |
+| [05 — Cómo definir una actividad](05-definir-actividades.md) | Jefatura y quien prepare trabajo | De un pendiente a una tarjeta en 7 pasos, la ficha y la comprobación final |
 | [`torsacore/`](torsacore/) | Desarrollo TorsaCore | Código de referencia: router FastAPI y componente React |
 
 ## En una página
