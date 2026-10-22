@@ -1,5 +1,8 @@
 # 06 — Niveles de gestión y riesgos
 
+> **Regla:** solo los usuarios de TorsaCore pueden ser dueños de una tarjeta,
+> líderes de proyecto o responsables de un riesgo.
+
 Tres niveles de gestión, cada uno con su propio ritmo y sus propias decisiones.
 Ninguno valida el trabajo del de abajo: cada nivel decide lo suyo y **escala lo
 que no puede resolver**.

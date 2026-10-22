@@ -11,7 +11,9 @@ hábitos mínimos para eso. Todo lo demás queda a criterio de cada persona.
    peticiones por chat, correo o pasillo se convierten en tarjeta antes de empezar.
 2. **Cada tarjeta tiene un dueño, y el dueño decide.** El dueño resuelve la
    tarjeta de principio a fin, decide cómo y pide ayuda a quien la necesite. No
-   hay aprobadores intermedios ni matrices de responsabilidad.
+   hay aprobadores intermedios ni matrices de responsabilidad. **Solo un usuario
+   de TorsaCore puede ser dueño**: quien no tenga usuario no puede tener
+   tarjetas asignadas.
 3. **Se toma, no se asigna.** Las tarjetas Listas pueden estar libres; quien
    tiene capacidad toma la siguiente. La jefatura solo asigna cuando la tarjeta
    requiere a una persona concreta.

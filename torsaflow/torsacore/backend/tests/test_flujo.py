@@ -25,6 +25,7 @@ class Reloj:
 @pytest.fixture
 def entorno(tmp_path, monkeypatch):
     monkeypatch.setenv("FLUJO_DB", str(tmp_path / "flujo.db"))
+    monkeypatch.setenv("FLUJO_USUARIOS", "ana,luis,jefatura")
     app = FastAPI()
     app.include_router(flujo.router)
     reloj = Reloj(LUNES)
@@ -187,3 +188,21 @@ def test_tomar_tarjeta_libre(entorno):
     assert r.status_code == 409
     resumen = cliente.get("/api/flujo/resumen-semanal").json()
     assert resumen["libres"] == []
+
+
+def test_solo_usuarios_torsacore_pueden_ser_duenos(entorno):
+    cliente, _, pid = entorno
+    r = cliente.post("/api/flujo/tarjetas", json={"titulo": "Revisar algo", "responsable": "pepe", "proyecto_id": pid})
+    assert r.status_code == 409 and "no es un usuario de TorsaCore" in r.json()["detail"]["reglas"][0]
+    tid = nueva(cliente, pid)["id"]
+    assert cliente.patch(f"/api/flujo/tarjetas/{tid}", json={"responsable": "pepe"}).status_code == 409
+    assert cliente.patch(f"/api/flujo/tarjetas/{tid}", json={"responsable": "luis"}).status_code == 200
+    # en el plan, un dueño que no es usuario se descarta y la fase queda libre
+    proyecto = cliente.put("/api/flujo/proyectos", json={"codigo": "ES-X-PC-1", "nombre": "X"}).json()
+    r = cliente.post(f"/api/flujo/proyectos/{proyecto['id']}/plan", json={"fases": [
+        {"fase": "Visita", "fin": "2026-11-06", "responsable": "Desconocido"}]}).json()
+    assert r["duenos_no_validos"] == ["Visita: Desconocido"]
+    assert cliente.get(f"/api/flujo/tarjetas?proyecto_id={proyecto['id']}").json()[0]["responsable"] is None
+    # tomar exige estar identificado
+    libre = cliente.post("/api/flujo/tarjetas", json={"titulo": "Tarea libre", "proyecto_id": pid, "estado": "listo"}).json()
+    assert cliente.post(f"/api/flujo/tarjetas/{libre['id']}/tomar", headers={"X-Usuario": ""}).status_code == 401

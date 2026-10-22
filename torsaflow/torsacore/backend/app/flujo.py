@@ -128,6 +128,24 @@ def usuario_actual(x_usuario: Optional[str] = Header(default=None)) -> str:
     return x_usuario or "anonimo"
 
 
+def usuarios_torsacore() -> set[str]:
+    """ADAPTAR: usuarios activos de TorsaCore. Solo ellos pueden ser dueños de una tarjeta.
+
+    En TorsaCore debe consultar su tabla de usuarios. Esta referencia lee la
+    variable FLUJO_USUARIOS (lista separada por comas). Si no hay usuarios
+    configurados, nadie puede asignar dueños a otros; solo «tomar» (el usuario
+    autenticado se asigna a sí mismo).
+    """
+    return {u.strip() for u in os.environ.get("FLUJO_USUARIOS", "").split(",") if u.strip()}
+
+
+def faltas_dueno(responsable: Optional[str], usuarios: set[str]) -> list[str]:
+    """Regla: el dueño de una tarjeta tiene que ser un usuario de TorsaCore."""
+    if responsable and responsable not in usuarios:
+        return [f"«{responsable}» no es un usuario de TorsaCore. Solo los usuarios de TorsaCore pueden ser dueños de una tarjeta."]
+    return []
+
+
 def ahora() -> datetime:
     return datetime.now(timezone.utc)
 
@@ -336,6 +354,7 @@ def generar_desde_plan(
     con: sqlite3.Connection = Depends(conexion),
     usuario: str = Depends(usuario_actual),
     momento: datetime = Depends(ahora),
+    usuarios: set[str] = Depends(usuarios_torsacore),
 ):
     """Convierte las fases del Plan de Trabajo aprobado en tarjetas.
 
@@ -349,11 +368,14 @@ def generar_desde_plan(
         f[0] for f in con.execute(
             "SELECT fase FROM flujo_tarjetas WHERE proyecto_id=? AND fase IS NOT NULL", (proyecto_id,))
     }
-    creadas, incompletas = [], []
+    creadas, incompletas, no_usuarios = [], [], []
     for f in plan.fases:
         if f.fase in existentes:
             continue
         responsable = None if _sin_definir(f.responsable) else f.responsable.strip()
+        if responsable and faltas_dueno(responsable, usuarios):
+            no_usuarios.append(f"{f.fase}: {responsable}")
+            responsable = None  # queda libre: solo usuarios de TorsaCore pueden ser dueños
         fin = None
         if not _sin_definir(f.fin):
             try:
@@ -373,7 +395,8 @@ def generar_desde_plan(
         creadas.append(cur.lastrowid)
         if not completa:
             incompletas.append(f.fase)
-    return {"creadas": len(creadas), "ids": creadas, "fases_sin_fecha": incompletas}
+    return {"creadas": len(creadas), "ids": creadas, "fases_sin_fecha": incompletas,
+            "duenos_no_validos": no_usuarios}
 
 
 # --- Tarjetas --------------------------------------------------------------
@@ -412,9 +435,13 @@ def crear_tarjeta(
     con: sqlite3.Connection = Depends(conexion),
     usuario: str = Depends(usuario_actual),
     momento: datetime = Depends(ahora),
+    usuarios: set[str] = Depends(usuarios_torsacore),
 ):
     datos = t.model_dump()
-    if t.estado == "listo" and (faltas := faltas_listo(datos)):
+    faltas = faltas_dueno(t.responsable, usuarios)
+    if t.estado == "listo":
+        faltas += faltas_listo(datos)
+    if faltas:
         raise HTTPException(409, {"reglas": faltas})
     cur = con.execute(
         "INSERT INTO flujo_tarjetas (titulo, responsable, solicitante, proyecto_id, clase, "
@@ -445,11 +472,14 @@ def editar_tarjeta(
     con: sqlite3.Connection = Depends(conexion),
     usuario: str = Depends(usuario_actual),
     momento: datetime = Depends(ahora),
+    usuarios: set[str] = Depends(usuarios_torsacore),
 ):
     t = _tarjeta(con, tarjeta_id)
     valores = cambios.model_dump(exclude_unset=True)
     if not valores:
         return t
+    if faltas := faltas_dueno(valores.get("responsable"), usuarios):
+        raise HTTPException(409, {"reglas": faltas})
     if "fecha_compromiso" in valores and valores["fecha_compromiso"]:
         valores["fecha_compromiso"] = valores["fecha_compromiso"].isoformat()
     columnas = ", ".join(f"{k}=?" for k in valores)
@@ -539,6 +569,8 @@ def tomar_tarjeta(
     momento: datetime = Depends(ahora),
 ):
     """Autoasignación: quien tiene capacidad toma una tarjeta Lista y la empieza."""
+    if usuario == "anonimo":
+        raise HTTPException(401, {"reglas": ["Inicia sesión en TorsaCore para tomar una tarjeta."]})
     t = _tarjeta(con, tarjeta_id)
     if t["responsable"] and t["responsable"] != usuario:
         raise HTTPException(409, {"reglas": [f"La tarjeta ya es de {t['responsable']}."]})

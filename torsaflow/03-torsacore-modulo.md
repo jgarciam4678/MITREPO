@@ -57,6 +57,8 @@ flujo_eventos    (id, tarjeta_id, momento, usuario, tipo, desde, hacia, detalle)
 | Pasar a En curso | Máx. 3 por persona | Aviso; se puede forzar con justificación |
 | Pasar a En validación | Máx. 2 por persona | Aviso; se puede forzar con justificación |
 | Pasar a En curso una urgente | Máx. 1 urgente activa en el departamento | Aviso; se puede forzar |
+| Asignar dueño (crear, editar, Plan de Trabajo) | El dueño tiene que ser un usuario de TorsaCore (`usuarios_torsacore`). Desde el Plan, un dueño que no lo es se descarta y la fase queda libre (`duenos_no_validos`) | Obligatoria |
+| Tomar | Solo un usuario autenticado en TorsaCore | Obligatoria |
 | Pasar a Hecho | Evidencia: código en la Biblioteca o enlace de Craft. Sin validador | Obligatoria |
 | Descartar | Motivo en una línea | Obligatoria |
 | Bloquear | Motivo + de quién depende | Obligatoria |
