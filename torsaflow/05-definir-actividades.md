@@ -4,7 +4,7 @@ Una actividad está bien definida cuando **cualquiera del equipo puede tomarla
 sin preguntar nada y cualquiera puede comprobar que está hecha sin haber
 estado allí**. Ese es el único criterio. Todo lo demás son pasos para llegar a él.
 
-Definir es trabajo de jefatura: es la parte de «buscar y preparar los
+Definir es trabajo del responsable de portafolio: es la parte de «buscar y preparar los
 problemas». Resolverlos es trabajo del dueño.
 
 ## De un pendiente a una tarjeta: 7 pasos

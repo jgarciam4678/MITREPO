@@ -28,20 +28,20 @@ no el viernes.
 | Documento | Para quién | Qué contiene |
 |---|---|---|
 | [01 — Comportamiento](01-comportamiento.md) | Todo el departamento | Principios, roles, cadencias, acuerdos, DoR/DoD, bloqueos |
-| [02 — Métricas](02-metricas.md) | Jefatura y PMs | Los índices, cómo se calculan y objetivos |
+| [02 — Métricas](02-metricas.md) | Portafolio y PMs | Los índices, cómo se calculan y objetivos |
 | [03 — Módulo Flujo en TorsaCore](03-torsacore-modulo.md) | Desarrollo TorsaCore | Modelo de datos, reglas, API, pantallas, enlace con Charter, Plan y Biblioteca |
-| [04 — Plan de despliegue](04-despliegue.md) | Jefatura | 90 días, criterios de éxito, antipatrones |
-| [05 — Cómo definir una actividad](05-definir-actividades.md) | Jefatura y quien prepare trabajo | De un pendiente a una tarjeta en 7 pasos, la ficha y la comprobación final |
-| [06 — Niveles de gestión y riesgos](06-niveles-y-riesgos.md) | Jefatura y líderes N3 | Portafolio (jefatura), proyecto y riesgos (N3), ejecución (N2, N1); registro de riesgos ligero |
+| [04 — Plan de despliegue](04-despliegue.md) | Portafolio | 90 días, criterios de éxito, antipatrones |
+| [05 — Cómo definir una actividad](05-definir-actividades.md) | Portafolio y quien prepare trabajo | De un pendiente a una tarjeta en 7 pasos, la ficha y la comprobación final |
+| [06 — Niveles de gestión y riesgos](06-niveles-y-riesgos.md) | Portafolio y líderes N3 | Portafolio (responsable del área), proyecto y riesgos (N3), ejecución (N2, N1); registro de riesgos ligero |
 | [`torsacore/`](torsacore/) | Desarrollo TorsaCore | Código de referencia: router FastAPI y componente React |
 
 ## En una página
 
 ```
- Jefatura (portafolio): prioridades entre proyectos, capacidad, riesgos altos, desbloqueos
+ Portafolio (portafolio): prioridades entre proyectos, capacidad, riesgos altos, desbloqueos
  N3 (proyecto):         prepara tarjetas Listas, lleva riesgos y cliente
  N2 / N1 (ejecución):   toman tarjetas de su nivel ──▶ las resuelven ──▶ Hecho con evidencia
- TorsaCore:             bloqueos de 2+ días y riesgos altos ──▶ suben solos a jefatura
+ TorsaCore:             bloqueos de 2+ días y riesgos altos ──▶ suben solos al responsable de portafolio
 
  Backlog → Listo (libre) → En curso → Hecho
                            (≤ 3 por persona)   (evidencia enlazada, sin validador)

@@ -11,15 +11,15 @@ cambian cargos.
 |---|---|---|
 | **Completar Charters activos**: responsable, fecha de inicio y de fin, criterios de éxito; pasarlos a *Aprobado* o archivarlos | Dueños de proyecto | Índice 9 «Charters completos» medible desde el día 1 |
 | **Completar Planes de Trabajo**: cada fase con fechas y cada rol asignado (fuera los «A definir» / «A asignar») | Dueños de proyecto | Planes ejecutables |
-| **Limpieza de la Biblioteca**: atacar los pendientes de «00 - Índice documental» (duplicados, páginas de prueba, control documental incompleto, «Pendiente de confirmar» en autor/responsable/aprobador) | Jefatura + responsables de portafolio | Línea base de los índices 11 y 12 |
+| **Limpieza de la Biblioteca**: atacar los pendientes de «00 - Índice documental» (duplicados, páginas de prueba, control documental incompleto, «Pendiente de confirmar» en autor/responsable/aprobador) | Portafolio + responsables de portafolio | Línea base de los índices 11 y 12 |
 | Desplegar el módulo Flujo en TorsaCore con los enganches de Charter y Plan | Desarrollo TorsaCore | Módulo operativo |
-| Generar las tarjetas desde los Planes aprobados y añadir el trabajo interno en curso (proyecto «Interno») | Jefatura + PMs | Tablero con el trabajo real |
-| Presentar el marco al equipo: 30 min, solo los 6 principios y las 5 cadencias | Jefatura | Todos saben qué cambia el lunes |
+| Generar las tarjetas desde los Planes aprobados y añadir el trabajo interno en curso (proyecto «Interno») | Portafolio + PMs | Tablero con el trabajo real |
+| Presentar el marco al equipo: 30 min, solo los 6 principios y las 5 cadencias | Portafolio | Todos saben qué cambia el lunes |
 
 ## Fase 1 — Piloto (semanas 3–4)
 
 - Un portafolio o subequipo (4–6 personas) trabaja solo con el tablero y los avisos automáticos.
-- La jefatura prepara la reunión del lunes con el *Resumen semanal* de TorsaCore.
+- El responsable de portafolio prepara la reunión del lunes con el *Resumen semanal* de TorsaCore.
 - Al final: retro de 30 min con el piloto, ajustar límites de WIP si hace falta.
 
 ## Fase 2 — Todo el departamento (semanas 5–7)
@@ -54,9 +54,9 @@ cambian cargos.
 
 | Señal | Qué hacer |
 |---|---|
-| Charter aprobado con fechas «—» o Plan con todo «A definir» | No genera tarjetas Listas: se queda en Backlog hasta que la jefatura lo prepare. |
+| Charter aprobado con fechas «—» o Plan con todo «A definir» | No genera tarjetas Listas: se queda en Backlog hasta que el responsable de portafolio lo prepare. |
 | El tablero se actualiza el viernes «para la reunión» | Sin tablero al día no llegan los avisos ni se ven las tarjetas libres: el coste lo paga el propio equipo. Se habla una vez, en la mirada mensual. |
-| Todo es urgente | Solo 1 urgente a la vez. Si hay dos, la jefatura decide cuál cede. |
+| Todo es urgente | Solo 1 urgente a la vez. Si hay dos, el responsable de portafolio decide cuál cede. |
 | Tarjetas gigantes que viven semanas en curso | Si supera el p85, su dueño la parte. |
 | Se fuerza el WIP cada semana | Es un problema de prioridades, no del límite: va a la revisión de portafolio. |
 | «Bloqueado» como sitio cómodo donde aparcar | Escalado a 48 h y a 5 días; a los 15 días, decisión en portafolio. |

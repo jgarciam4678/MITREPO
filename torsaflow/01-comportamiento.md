@@ -15,7 +15,7 @@ hábitos mínimos para eso. Todo lo demás queda a criterio de cada persona.
    de TorsaCore puede ser dueño**: quien no tenga usuario no puede tener
    tarjetas asignadas.
 3. **Se toma, no se asigna.** Las tarjetas Listas pueden estar libres; quien
-   tiene capacidad toma la siguiente. La jefatura solo asigna cuando la tarjeta
+   tiene capacidad toma la siguiente. El responsable de portafolio solo asigna cuando la tarjeta
    requiere a una persona concreta.
 4. **Dejar de empezar, empezar a terminar.** Máximo **3 tarjetas En curso por
    persona**. Para tomar otra, primero terminas o marcas un bloqueo.
@@ -24,7 +24,7 @@ hábitos mínimos para eso. Todo lo demás queda a criterio de cada persona.
    Craft). Solo el cliente firma, y solo en los hitos de contrato.
 6. **Los bloqueos suben solos.** Esperar a otra área, al cliente o a un
    proveedor es normal; esperar en silencio no. El dueño marca ⚑ y TorsaCore
-   se lo hace llegar a la jefatura sin necesidad de reunión.
+   se lo hace llegar a el responsable de portafolio sin necesidad de reunión.
 
 ## 2. Roles
 
@@ -32,7 +32,7 @@ Tres niveles de gestión (detalle en [06](06-niveles-y-riesgos.md)), sin cargos 
 
 | Rol | Qué hace | Qué no hace |
 |---|---|---|
-| **Jefatura · portafolio** | Decide prioridades entre proyectos y capacidad; quita bloqueos que el equipo no puede quitar; vigila los riesgos altos; busca problemas nuevos y se los pasa al líder N3 | Validar cada tarjeta, pedir informes, convocar reuniones de seguimiento |
+| **Portafolio · portafolio** | Decide prioridades entre proyectos y capacidad; quita bloqueos que el equipo no puede quitar; vigila los riesgos altos; busca problemas nuevos y se los pasa al líder N3 | Validar cada tarjeta, pedir informes, convocar reuniones de seguimiento |
 | **N3 · líder de proyecto** | Prepara las tarjetas Listas de sus proyectos, lleva el registro de riesgos y la relación con el cliente | Hacer el trabajo de ejecución por el equipo |
 | **N2 y N1 · dueños de tarjeta** | Toman tarjetas de su nivel, las resuelven, deciden cómo, marcan bloqueos y las cierran con evidencia | Pedir permiso para resolver dentro de su tarjeta |
 
@@ -96,8 +96,8 @@ ese trabajo.
 | Qué | Cuándo | Cómo |
 |---|---|---|
 | **Actualizar el tablero** | Cuando algo cambia | Cada dueño mueve su tarjeta en el momento. Dos clics, no un informe. |
-| **Avisos automáticos** | Continuo | Bloqueada 2 días hábiles → aviso a jefatura. Tarjeta en rojo por edad → aviso a su dueño. Hay tarjetas libres → visibles para todos. |
-| **Revisión del lunes** | Semanal, 20 min como máximo | Jefatura (y quien quiera) sobre el *Resumen semanal*: lo que hay que desbloquear, lo que vence en 2 semanas y qué preparar como Listo. **Si el resumen no marca nada, no hay reunión.** |
+| **Avisos automáticos** | Continuo | Bloqueada 2 días hábiles → aviso al responsable de portafolio. Tarjeta en rojo por edad → aviso a su dueño. Hay tarjetas libres → visibles para todos. |
+| **Revisión del lunes** | Semanal, 20 min como máximo | Portafolio (y quien quiera) sobre el *Resumen semanal*: lo que hay que desbloquear, lo que vence en 2 semanas y qué preparar como Listo. **Si el resumen no marca nada, no hay reunión.** |
 | **Mirada mensual** | Una vez al mes, 45 min | Las métricas del mes y una sola mejora al proceso. |
 
 Total: menos de una hora por persona y semana.
@@ -107,7 +107,7 @@ Total: menos de una hora por persona y semana.
 | Tiempo bloqueado | Qué pasa |
 |---|---|
 | **0** | El dueño marca ⚑: qué falta y de quién depende. |
-| **2 días hábiles** | TorsaCore lo pone en «Para desbloquear». La jefatura lo resuelve fuera del tablero: llamada, visita, decisión. |
+| **2 días hábiles** | TorsaCore lo pone en «Para desbloquear». El responsable de portafolio lo resuelve fuera del tablero: llamada, visita, decisión. |
 | **2 semanas** | Ya no es una espera, es una decisión: escalar, replanificar o descartar. |
 
 ## 7. Acuerdos de trabajo
