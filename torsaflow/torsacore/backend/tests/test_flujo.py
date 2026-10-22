@@ -206,3 +206,16 @@ def test_solo_usuarios_torsacore_pueden_ser_duenos(entorno):
     # tomar exige estar identificado
     libre = cliente.post("/api/flujo/tarjetas", json={"titulo": "Tarea libre", "proyecto_id": pid, "estado": "listo"}).json()
     assert cliente.post(f"/api/flujo/tarjetas/{libre['id']}/tomar", headers={"X-Usuario": ""}).status_code == 401
+
+
+def test_areas_son_etiquetas_y_se_filtran(entorno):
+    cliente, _, pid = entorno
+    t = cliente.post("/api/flujo/tarjetas", json={"titulo": "Preparar kits", "responsable": "ana",
+        "proyecto_id": pid, "areas": ["Fábrica"]}).json()
+    assert t["areas"] == ["Fábrica"] and t["responsable"] == "ana"  # el dueño sigue siendo del área propia
+    otra = nueva(cliente, pid, titulo="Desplegar versión")
+    cliente.post(f"/api/flujo/tarjetas/{otra['id']}/bloquear", json={"motivo": "Esperando build", "depende_de": "Desarrollo"})
+    assert [x["id"] for x in cliente.get("/api/flujo/tarjetas?area=Fábrica").json()] == [t["id"]]
+    assert [x["id"] for x in cliente.get("/api/flujo/tarjetas?area=Desarrollo").json()] == [otra["id"]]
+    assert cliente.patch(f"/api/flujo/tarjetas/{t['id']}", json={"areas": ["Fábrica", "Logística"]}).json()["areas"] == ["Fábrica", "Logística"]
+    assert cliente.get("/api/flujo/resumen-semanal").json()["bloqueadas_por_area"] == {"Desarrollo": 1}

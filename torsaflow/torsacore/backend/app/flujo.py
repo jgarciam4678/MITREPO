@@ -22,6 +22,7 @@ Puntos a adaptar a TorsaCore (marcados con ADAPTAR):
 
 from __future__ import annotations
 
+import json
 import math
 import os
 import random
@@ -90,6 +91,7 @@ CREATE TABLE IF NOT EXISTS flujo_tarjetas (
     bloqueo_respuesta   TEXT,
     fase                TEXT,   -- fase del Plan de Trabajo de la que sale
     documento_codigo    TEXT,   -- código del entregable en la Biblioteca técnica
+    areas               TEXT NOT NULL DEFAULT '[]',  -- áreas de las que depende (JSON). Etiquetas, nunca dueñas
     creada_en           TEXT NOT NULL,
     lista_en            TEXT,
     iniciada_en         TEXT,
@@ -208,6 +210,7 @@ class TarjetaEntrada(BaseModel):
     estado: Literal["backlog", "listo"] = "backlog"
     fecha_compromiso: Optional[date] = None
     fase: Optional[str] = None
+    areas: list[str] = []
 
 
 class TarjetaCambios(BaseModel):
@@ -219,6 +222,7 @@ class TarjetaCambios(BaseModel):
     fecha_compromiso: Optional[date] = None
     enlace_entregable: Optional[str] = None
     documento_codigo: Optional[str] = None
+    areas: Optional[list[str]] = None
 
 
 class Movimiento(BaseModel):
@@ -283,11 +287,17 @@ def _urgentes_activas(con: sqlite3.Connection, excluir: int) -> int:
 # --- Acceso ----------------------------------------------------------------
 
 
+def _fila(fila: sqlite3.Row) -> dict:
+    t = dict(fila)
+    t["areas"] = json.loads(t.get("areas") or "[]")
+    return t
+
+
 def _tarjeta(con: sqlite3.Connection, tarjeta_id: int) -> dict:
     fila = con.execute("SELECT * FROM flujo_tarjetas WHERE id=?", (tarjeta_id,)).fetchone()
     if fila is None:
         raise HTTPException(404, "Tarjeta no encontrada")
-    return dict(fila)
+    return _fila(fila)
 
 
 def _evento(con, tarjeta_id, momento, usuario, tipo, desde=None, hacia=None, detalle=None):
@@ -407,6 +417,7 @@ def listar_tarjetas(
     responsable: Optional[str] = None,
     proyecto_id: Optional[int] = None,
     estado: Optional[Estado] = None,
+    area: Optional[str] = None,
     incluir_cerradas: bool = False,
     con: sqlite3.Connection = Depends(conexion),
     momento: datetime = Depends(ahora),
@@ -419,6 +430,9 @@ def listar_tarjetas(
     if proyecto_id:
         sql += " AND proyecto_id=?"
         params.append(proyecto_id)
+    if area:
+        sql += " AND (areas LIKE ? OR bloqueo_depende_de=?)"
+        params += [f'%{json.dumps(area, ensure_ascii=False)}%', area]
     if estado:
         sql += " AND estado=?"
         params.append(estado)
@@ -426,7 +440,7 @@ def listar_tarjetas(
         sql += " AND estado NOT IN ('hecho','descartado')"
     sql += " ORDER BY actualizada_en DESC"
     p85 = _p85(con, momento)
-    return [_con_semaforo(dict(f), momento, p85) for f in con.execute(sql, params)]
+    return [_con_semaforo(_fila(f), momento, p85) for f in con.execute(sql, params)]
 
 
 @router.post("/tarjetas", status_code=201)
@@ -445,8 +459,8 @@ def crear_tarjeta(
         raise HTTPException(409, {"reglas": faltas})
     cur = con.execute(
         "INSERT INTO flujo_tarjetas (titulo, responsable, solicitante, proyecto_id, clase, "
-        "estado, fecha_compromiso, fase, creada_en, lista_en, actualizada_en) "
-        "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+        "estado, fecha_compromiso, fase, areas, creada_en, lista_en, actualizada_en) "
+        "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
         (
             t.titulo.strip(),
             t.responsable,
@@ -456,6 +470,7 @@ def crear_tarjeta(
             t.estado,
             t.fecha_compromiso.isoformat() if t.fecha_compromiso else None,
             t.fase,
+            json.dumps(t.areas, ensure_ascii=False),
             _iso(momento),
             _iso(momento) if t.estado == "listo" else None,
             _iso(momento),
@@ -482,6 +497,8 @@ def editar_tarjeta(
         raise HTTPException(409, {"reglas": faltas})
     if "fecha_compromiso" in valores and valores["fecha_compromiso"]:
         valores["fecha_compromiso"] = valores["fecha_compromiso"].isoformat()
+    if "areas" in valores:
+        valores["areas"] = json.dumps(valores["areas"] or [], ensure_ascii=False)
     columnas = ", ".join(f"{k}=?" for k in valores)
     con.execute(
         f"UPDATE flujo_tarjetas SET {columnas}, actualizada_en=? WHERE id=?",
@@ -835,7 +852,7 @@ def resumen_semanal(
     p85 = _p85(con, momento)
 
     def lista(sql: str, params=()):
-        return [_con_semaforo(dict(f), momento, p85) for f in con.execute(sql, params)]
+        return [_con_semaforo(_fila(f), momento, p85) for f in con.execute(sql, params)]
 
     abiertas = lista("SELECT * FROM flujo_tarjetas WHERE estado NOT IN ('hecho','descartado')")
     limite_listo = momento - timedelta(weeks=SEMANAS_EN_LISTO)
@@ -850,6 +867,11 @@ def resumen_semanal(
         ],
         "libres": [t for t in abiertas if t["estado"] == "listo" and not t["responsable"]],
         "para_desbloquear": [t for t in abiertas if t["bloqueada"] and (t["dias_bloqueada"] or 0) >= 2],
+        "bloqueadas_por_area": {
+            area: n for area, n in sorted(
+                {t["bloqueo_depende_de"]: sum(1 for x in abiertas if x["bloqueada"] and x["bloqueo_depende_de"] == t["bloqueo_depende_de"])
+                 for t in abiertas if t["bloqueada"] and t["bloqueo_depende_de"]}.items())
+        },
         "bloqueadas": sorted(
             (t for t in abiertas if t["bloqueada"]), key=lambda t: t["bloqueo_desde"] or ""
         ),

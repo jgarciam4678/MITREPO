@@ -14,6 +14,24 @@ que no puede resolver**.
 | **Ejecución autónoma** | N2 | Sus tarjetas: diagnosticar, implementar, validar | Cómo resolver su tarjeta | Líder N3: bloqueos, dudas de alcance |
 | **Ejecución guiada** | N1 | Tarjetas bien definidas: instalar, preparar, enviar, inventariar | Cómo ejecutar dentro de lo definido | N2 en lo técnico; líder N3 en bloqueos |
 
+## Dependencias con otras áreas
+
+Esta gestión es la de **Ingeniería de Aplicaciones**, el área que gobierna
+TorsaCore. Muchas tarjetas dependen de otros departamentos (Fábrica, Desarrollo,
+Comercial, Logística, Compras), del cliente o de un proveedor.
+
+- **El área es una etiqueta, nunca la dueña.** El dueño de la tarjeta es siempre
+  un usuario de TorsaCore de Ingeniería de Aplicaciones, y su trabajo es **hacer
+  el seguimiento** con esa área. Si el dueño fuera de otra área, nadie la seguiría.
+- Una tarjeta puede depender de varias áreas y llevar un **interlocutor** (texto
+  libre: la persona o el equipo con quien se coordina).
+- Si el área no responde, la tarjeta se **bloquea indicando el área**. A los 2
+  días hábiles sube a portafolio.
+- **Vista por área**: todo lo que se necesita de cada departamento, con lo que
+  está bloqueado esperándole, lo que está en curso y lo que empieza en las
+  próximas 2 semanas. Sirve de orden del día para la reunión o el correo con esa
+  área.
+
 ## Qué cambia en las tarjetas
 
 Cada tarjeta lleva un **nivel mínimo**:
