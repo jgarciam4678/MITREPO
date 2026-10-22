@@ -32,14 +32,16 @@ no el viernes.
 | [03 — Módulo Flujo en TorsaCore](03-torsacore-modulo.md) | Desarrollo TorsaCore | Modelo de datos, reglas, API, pantallas, enlace con Charter, Plan y Biblioteca |
 | [04 — Plan de despliegue](04-despliegue.md) | Jefatura | 90 días, criterios de éxito, antipatrones |
 | [05 — Cómo definir una actividad](05-definir-actividades.md) | Jefatura y quien prepare trabajo | De un pendiente a una tarjeta en 7 pasos, la ficha y la comprobación final |
+| [06 — Niveles de gestión y riesgos](06-niveles-y-riesgos.md) | Jefatura y líderes N3 | Portafolio (jefatura), proyecto y riesgos (N3), ejecución (N2, N1); registro de riesgos ligero |
 | [`torsacore/`](torsacore/) | Desarrollo TorsaCore | Código de referencia: router FastAPI y componente React |
 
 ## En una página
 
 ```
- Jefatura:  busca y prepara problemas ──▶ tarjetas Listas (libres)
- Equipo:    cada uno toma la siguiente ──▶ la resuelve y decide cómo ──▶ Hecho con evidencia
- TorsaCore: bloqueos de 2+ días ──▶ aviso a jefatura, que desbloquea en el mundo real
+ Jefatura (portafolio): prioridades entre proyectos, capacidad, riesgos altos, desbloqueos
+ N3 (proyecto):         prepara tarjetas Listas, lleva riesgos y cliente
+ N2 / N1 (ejecución):   toman tarjetas de su nivel ──▶ las resuelven ──▶ Hecho con evidencia
+ TorsaCore:             bloqueos de 2+ días y riesgos altos ──▶ suben solos a jefatura
 
  Backlog → Listo (libre) → En curso → Hecho
                            (≤ 3 por persona)   (evidencia enlazada, sin validador)

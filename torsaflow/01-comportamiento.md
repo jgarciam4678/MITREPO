@@ -26,12 +26,13 @@ hábitos mínimos para eso. Todo lo demás queda a criterio de cada persona.
 
 ## 2. Roles
 
-Solo dos, sin cargos nuevos:
+Tres niveles de gestión (detalle en [06](06-niveles-y-riesgos.md)), sin cargos nuevos:
 
 | Rol | Qué hace | Qué no hace |
 |---|---|---|
-| **Dueño de la tarjeta** (cualquier persona) | Toma la tarjeta, la resuelve, decide cómo, marca los bloqueos en el momento y la cierra con evidencia | Pedir permiso para resolver dentro de su tarjeta |
-| **Jefatura** | Busca y prepara los problemas en el mundo real y los convierte en tarjetas Listas; quita bloqueos que el equipo no puede quitar; decide prioridades entre proyectos; trata con el cliente | Validar cada tarjeta, pedir informes, convocar reuniones de seguimiento |
+| **Jefatura · portafolio** | Decide prioridades entre proyectos y capacidad; quita bloqueos que el equipo no puede quitar; vigila los riesgos altos; busca problemas nuevos y se los pasa al líder N3 | Validar cada tarjeta, pedir informes, convocar reuniones de seguimiento |
+| **N3 · líder de proyecto** | Prepara las tarjetas Listas de sus proyectos, lleva el registro de riesgos y la relación con el cliente | Hacer el trabajo de ejecución por el equipo |
+| **N2 y N1 · dueños de tarjeta** | Toman tarjetas de su nivel, las resuelven, deciden cómo, marcan bloqueos y las cierran con evidencia | Pedir permiso para resolver dentro de su tarjeta |
 
 ## 3. Tres niveles de trabajo (Flight Levels)
 
@@ -75,7 +76,7 @@ Backlog o se descarta.
 2. ¿Tiene proyecto (o «Interno») y, si hay compromiso, fecha?
 3. ¿Cabe en **2 semanas** o menos? Si no, se parte.
 
-Preparar tarjetas Listas es el trabajo principal de la jefatura.
+Preparar tarjetas Listas es el trabajo principal del líder N3 de cada proyecto.
 
 ### Definición de Hecho
 
